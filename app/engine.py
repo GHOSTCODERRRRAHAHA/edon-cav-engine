@@ -30,17 +30,34 @@ STRESS_LABEL = 2  # Stress label ID
 
 
 def load_artifacts():
-    """Load model, scaler, and feature schema."""
-    with open(MODEL_FILE, 'rb') as f:
-        model = pickle.load(f)
-    
-    with open(SCALER_FILE, 'rb') as f:
-        scaler = pickle.load(f)
-    
-    with open(SCHEMA_FILE, 'r') as f:
-        schema = json.load(f)
-    
-    return model, scaler, schema
+    """Load model, scaler, and feature schema using robust discovery."""
+    # Always try robust loader first (v3.2 models)
+    try:
+        from app.engine_loader_patch import load_artifacts as load_artifacts_robust
+        return load_artifacts_robust()
+    except ImportError as e:
+        # If import fails, check if file exists
+        loader_path = Path(__file__).parent / "engine_loader_patch.py"
+        if not loader_path.exists():
+            raise ImportError(
+                f"app/engine_loader_patch.py not found at {loader_path}. "
+                f"Please ensure the file exists."
+            ) from e
+        
+        # File exists but import failed - re-raise with more context
+        raise ImportError(
+            f"Could not import robust loader from {loader_path}: {e}. "
+            f"Check for syntax errors or missing dependencies."
+        ) from e
+    except FileNotFoundError as e:
+        # Robust loader found but artifacts missing - provide helpful error
+        import os
+        env_dir = os.getenv("EDON_MODEL_DIR", "not set")
+        raise FileNotFoundError(
+            f"Could not find v3.2 model artifacts. {str(e)}. "
+            f"EDON_MODEL_DIR={env_dir}. "
+            f"Ensure models are in one of: EDON_MODEL_DIR, ./models/, repo root, or cav_engine_v3_2_* folder."
+        ) from e
 
 
 def compute_basic_stats(signal: np.ndarray) -> Dict[str, float]:
