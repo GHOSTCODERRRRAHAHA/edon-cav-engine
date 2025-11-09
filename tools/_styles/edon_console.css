@@ -1,0 +1,348 @@
+/* EDON CAV Engine Console - Dark AI Theme */
+
+@keyframes pulse-gradient {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes glow-pulse {
+    0%, 100% {
+        opacity: 0.6;
+        box-shadow: 0 0 5px currentColor;
+    }
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 15px currentColor, 0 0 25px currentColor;
+    }
+}
+
+@keyframes live-dot {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
+/* Body gradient with subtle pulse */
+.main .block-container {
+    background: linear-gradient(135deg, #0E0F12 0%, #15171B 50%, #0E0F12 100%);
+    background-size: 200% 200%;
+    animation: pulse-gradient 20s ease infinite;
+    min-height: 100vh;
+}
+
+/* Card containers */
+.stCard {
+    background: rgba(21, 23, 27, 0.8) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 12px !important;
+    border: 1px solid rgba(0, 229, 255, 0.1) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+    padding: 24px !important;
+    margin-bottom: 16px !important;
+}
+
+/* State chips */
+.state-chip {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    background: rgba(21, 23, 27, 0.6);
+    color: #F2F6FA;
+    margin: 4px;
+}
+
+.state-chip:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 229, 255, 0.3);
+}
+
+.state-chip.restorative {
+    border-color: #4FC3F7;
+    color: #4FC3F7;
+}
+
+.state-chip.restorative:hover,
+.state-chip.restorative.active {
+    background: rgba(79, 195, 247, 0.15);
+    box-shadow: 0 0 15px rgba(79, 195, 247, 0.5);
+    animation: glow-pulse 2s ease infinite;
+}
+
+.state-chip.balanced {
+    border-color: #C08D57;
+    color: #C08D57;
+}
+
+.state-chip.balanced:hover,
+.state-chip.balanced.active {
+    background: rgba(192, 141, 87, 0.15);
+    box-shadow: 0 0 15px rgba(192, 141, 87, 0.5);
+    animation: glow-pulse 2s ease infinite;
+}
+
+.state-chip.focus {
+    border-color: #00E5FF;
+    color: #00E5FF;
+}
+
+.state-chip.focus:hover,
+.state-chip.focus.active {
+    background: rgba(0, 229, 255, 0.15);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+    animation: glow-pulse 2s ease infinite;
+}
+
+/* LIVE dot */
+.live-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00E5FF;
+    margin-left: 8px;
+    animation: live-dot 1.5s ease infinite;
+    box-shadow: 0 0 10px #00E5FF, 0 0 20px #00E5FF;
+}
+
+/* KPI badges */
+.kpi-badge {
+    background: rgba(21, 23, 27, 0.9);
+    border-radius: 12px;
+    padding: 28px 24px;
+    text-align: center;
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    margin-bottom: 16px;
+}
+
+.kpi-badge.balanced {
+    border-color: rgba(192, 141, 87, 0.4);
+    box-shadow: 0 4px 16px rgba(192, 141, 87, 0.2);
+}
+
+.kpi-badge.focus {
+    border-color: rgba(0, 229, 255, 0.4);
+    box-shadow: 0 4px 16px rgba(0, 229, 255, 0.2);
+}
+
+.kpi-badge.restorative {
+    border-color: rgba(79, 195, 247, 0.4);
+    box-shadow: 0 4px 16px rgba(79, 195, 247, 0.2);
+}
+
+/* Typography */
+h1, h2, h3 {
+    color: #F2F6FA !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+    margin-bottom: 16px !important;
+}
+
+h1 {
+    font-size: 32px !important;
+    margin-bottom: 24px !important;
+}
+
+h2 {
+    font-size: 20px !important;
+    margin-bottom: 16px !important;
+}
+
+h3 {
+    font-size: 16px !important;
+    margin-bottom: 12px !important;
+}
+
+p {
+    line-height: 1.6 !important;
+    margin-bottom: 12px !important;
+}
+
+/* Control rail styling */
+[data-testid="stSidebar"] {
+    background: rgba(14, 15, 18, 0.95) !important;
+    border-right: 1px solid rgba(0, 229, 255, 0.1) !important;
+}
+
+/* Logo/Title area */
+.logo-container {
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.logo-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #00E5FF;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.version-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(0, 229, 255, 0.15);
+    border: 1px solid rgba(0, 229, 255, 0.3);
+    border-radius: 12px;
+    font-size: 11px;
+    color: #00E5FF;
+    margin-top: 8px;
+    font-weight: 600;
+}
+
+/* Input fields */
+.stTextInput > div > div > input {
+    background: rgba(21, 23, 27, 0.8) !important;
+    border: 1px solid rgba(0, 229, 255, 0.2) !important;
+    color: #F2F6FA !important;
+    border-radius: 8px !important;
+    padding: 10px 12px !important;
+    font-size: 14px !important;
+}
+
+.stTextInput label {
+    margin-bottom: 8px !important;
+    font-size: 13px !important;
+    color: rgba(242, 246, 250, 0.8) !important;
+}
+
+.stTextInput > div > div > input:focus {
+    border-color: #00E5FF !important;
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.3) !important;
+}
+
+/* Sliders */
+.stSlider > div > div {
+    background: rgba(21, 23, 27, 0.8) !important;
+}
+
+.stSlider > div > div > div {
+    background: #00E5FF !important;
+}
+
+/* Buttons */
+.stButton > button {
+    background: rgba(0, 229, 255, 0.1) !important;
+    border: 1px solid rgba(0, 229, 255, 0.3) !important;
+    color: #00E5FF !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    min-height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    word-wrap: break-word !important;
+    text-align: center !important;
+}
+
+.stButton > button:hover {
+    background: rgba(0, 229, 255, 0.2) !important;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Preset buttons - ensure full text visibility */
+.stButton[data-testid*="preset"] > button,
+button[data-testid*="preset"],
+div[data-testid*="column"] .stButton > button {
+    min-width: 100px !important;
+    width: 100% !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.4 !important;
+    padding: 10px 8px !important;
+}
+
+/* Charts container */
+.chart-container {
+    background: rgba(21, 23, 27, 0.6);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid rgba(0, 229, 255, 0.1);
+    margin: 16px 0;
+}
+
+/* Metrics */
+[data-testid="stMetricValue"] {
+    color: #00E5FF !important;
+    font-size: 28px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+}
+
+[data-testid="stMetricLabel"] {
+    color: rgba(242, 246, 250, 0.7) !important;
+    font-size: 13px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin-bottom: 8px !important;
+}
+
+/* Expanders */
+.stExpander {
+    background: rgba(21, 23, 27, 0.6) !important;
+    border: 1px solid rgba(0, 229, 255, 0.1) !important;
+    border-radius: 12px !important;
+}
+
+/* Radio buttons */
+.stRadio > div {
+    background: rgba(21, 23, 27, 0.6) !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+}
+
+/* Checkboxes */
+.stCheckbox > label {
+    color: #F2F6FA !important;
+}
+
+/* Number inputs */
+.stNumberInput > div > div > input {
+    background: rgba(21, 23, 27, 0.8) !important;
+    border: 1px solid rgba(0, 229, 255, 0.2) !important;
+    color: #F2F6FA !important;
+    border-radius: 8px !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(14, 15, 18, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 229, 255, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 229, 255, 0.5);
+}
+

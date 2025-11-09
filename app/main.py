@@ -1,0 +1,88 @@
+"""EDON CAV Engine - Main FastAPI application."""
+
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+import time
+from app import __version__
+from app.routes import cav, batch, telemetry, memory, dashboard
+
+app = FastAPI(
+    title="EDON CAV Engine",
+    description="Context-Aware Vector scoring API for OEM partners",
+    version=__version__,
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
+
+# CORS middleware for OEM integration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Configure appropriately for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(cav.router)
+app.include_router(batch.router)
+app.include_router(telemetry.router)
+app.include_router(memory.router)
+
+# Mount dashboard
+# Note: Dash integration requires WSGI-to-ASGI adapter
+# For now, we'll serve it on a separate port or use a simpler approach
+# The dashboard route is defined in dashboard.py
+try:
+    from app.routes.dashboard import get_dash_app
+    dash_app = get_dash_app()
+    
+    # Mount Dash app using ASGI adapter
+    from starlette.middleware.wsgi import WSGIMiddleware
+    app.mount("/dashboard", WSGIMiddleware(dash_app.server))
+except Exception as e:
+    # Dashboard is optional - log error but don't fail
+    import logging
+    logging.warning(f"Dashboard not available: {e}")
+
+
+@app.middleware("http")
+async def track_latency(request: Request, call_next):
+    """Middleware to track request latency for telemetry."""
+    from app.routes import telemetry
+    
+    start_time = time.time()
+    response = await call_next(request)
+    latency_ms = (time.time() - start_time) * 1000.0
+    
+    # Record latency for telemetry (only for CAV endpoints)
+    if request.url.path.startswith("/cav") or request.url.path.startswith("/oem"):
+        telemetry.record_request(latency_ms)
+    
+    return response
+
+
+@app.get("/")
+async def root():
+    """Root endpoint."""
+    return {
+        "service": "EDON CAV Engine",
+        "version": __version__,
+        "endpoints": {
+            "single": "POST /cav",
+            "batch": "POST /oem/cav/batch",
+            "health": "GET /health",
+            "telemetry": "GET /telemetry",
+            "memory_summary": "GET /memory/summary",
+            "memory_clear": "POST /memory/clear",
+            "dashboard": "GET /dashboard",
+            "docs": "/docs"
+        }
+    }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+

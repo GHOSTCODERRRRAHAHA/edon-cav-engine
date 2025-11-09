@@ -1,0 +1,59 @@
+{
+  "feature_names": [
+    "eda_mean",
+    "bvp_std",
+    "acc_magnitude_mean",
+    "temp_c",
+    "humidity",
+    "aqi",
+    "local_hour"
+  ],
+  "state_map": {
+    "balanced": 0,
+    "focus": 1,
+    "restorative": 2
+  },
+  "reverse_state_map": {
+    "0": "balanced",
+    "1": "focus",
+    "2": "restorative"
+  },
+  "feature_importance": {
+    "eda_mean": 0.42544975876808167,
+    "bvp_std": 0.2859698534011841,
+    "acc_magnitude_mean": 0.28858038783073425,
+    "temp_c": 0.0,
+    "humidity": 0.0,
+    "aqi": 0.0,
+    "local_hour": 0.0
+  },
+  "best_parameters": {
+    "learning_rate": 0.1,
+    "max_depth": 10,
+    "min_child_weight": 1,
+    "n_estimators": 200,
+    "subsample": 0.8
+  },
+  "metrics": {
+    "accuracy": 0.8774,
+    "f1_macro": 0.36698597029360164,
+    "f1_weighted": 0.865489870030167
+  },
+  "confusion_matrix": [
+    [
+      15,
+      27,
+      484
+    ],
+    [
+      34,
+      128,
+      991
+    ],
+    [
+      203,
+      713,
+      17405
+    ]
+  ]
+}

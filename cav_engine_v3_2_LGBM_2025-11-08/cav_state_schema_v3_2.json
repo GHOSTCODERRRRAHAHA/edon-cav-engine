@@ -1,0 +1,85 @@
+{
+  "feature_names": [
+    "eda_mean",
+    "eda_deriv_std",
+    "eda_deriv_pos_rate",
+    "bvp_std",
+    "acc_magnitude_mean",
+    "acc_var"
+  ],
+  "state_map": {
+    "balanced": 0,
+    "focus": 1,
+    "restorative": 2
+  },
+  "reverse_state_map": {
+    "0": "balanced",
+    "1": "focus",
+    "2": "restorative"
+  },
+  "feature_importance": {
+    "eda_mean": 6642.0,
+    "eda_deriv_std": 9444.0,
+    "eda_deriv_pos_rate": 3550.0,
+    "bvp_std": 10195.0,
+    "acc_magnitude_mean": 10525.0,
+    "acc_var": 2930.0
+  },
+  "class_weights": {
+    "0": 5.712455606291223,
+    "1": 2.603144326917519,
+    "2": 0.4097028910357877
+  },
+  "class_weights_used": true,
+  "thresholds": {
+    "balanced": 0.0,
+    "focus": 0.0,
+    "restorative": 0.0
+  },
+  "thresholds_tuned": false,
+  "algorithm": "lgbm",
+  "best_parameters": {
+    "learning_rate": 0.2,
+    "max_depth": 8,
+    "min_child_samples": 20,
+    "n_estimators": 300,
+    "num_leaves": 50
+  },
+  "metrics": {
+    "accuracy": 0.4539298401420959,
+    "f1_macro": 0.28894653564096856,
+    "f1_weighted": 0.5226660450305366,
+    "f1_per_class": [
+      0.06734534064212999,
+      0.1921537229783827,
+      0.607340543302393
+    ],
+    "precision_per_class": [
+      0.05725699067909454,
+      0.1249024199843872,
+      0.8078840054372451
+    ],
+    "recall_per_class": [
+      0.0817490494296578,
+      0.4163052905464007,
+      0.486560240141902
+    ]
+  },
+  "confusion_matrix": [
+    [
+      43,
+      235,
+      248
+    ],
+    [
+      73,
+      480,
+      600
+    ],
+    [
+      635,
+      3128,
+      3566
+    ]
+  ]
+}

@@ -1,0 +1,15 @@
+﻿# env & cache
+.venv/
+venv/
+__pycache__/
+.ipynb_checkpoints/
+# builds & temp
+dist/
+temp_sdk/
+*.zip
+# large data/models
+data/raw/
+outputs/
+*.parquet
+*.joblib
+*.pkl
