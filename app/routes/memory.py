@@ -1,13 +1,13 @@
 """Memory management routes for Adaptive Memory Engine."""
 
 from fastapi import APIRouter, HTTPException
-from app.routes import cav
 from typing import Dict
+from app.adaptive_memory import AdaptiveMemoryEngine
 
 router = APIRouter(prefix="/memory", tags=["Memory"])
 
-# Use shared memory engine instance from cav.py
-memory_engine = cav.memory_engine
+# Shared memory engine instance
+memory_engine = AdaptiveMemoryEngine()
 
 
 @router.get("/summary")

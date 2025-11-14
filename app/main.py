@@ -4,11 +4,22 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 import time
+import os
+from pathlib import Path
 from app import __version__
-from app.routes import cav, batch, telemetry, memory, dashboard
+from app.routes import batch, telemetry, memory, dashboard
 from app.routes.streaming import router as streaming_router
 from app.routes.ingest import router as ingest_router
-from app.routes.models import router as models_router  
+from app.routes.models import router as models_router
+
+# Load environment variables from .env file if it exists
+try:
+    from dotenv import load_dotenv
+    env_path = Path(__file__).parent.parent / ".env"
+    if env_path.exists():
+        load_dotenv(env_path)
+except ImportError:
+    pass  # python-dotenv not installed, skip  
 
 
 app = FastAPI(
@@ -29,7 +40,6 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(cav.router)
 app.include_router(batch.router)
 app.include_router(telemetry.router)
 app.include_router(memory.router)
@@ -67,7 +77,7 @@ async def track_latency(request: Request, call_next):
     latency_ms = (time.time() - start_time) * 1000.0
     
     # Record latency for telemetry (only for CAV endpoints)
-    if request.url.path.startswith("/cav") or request.url.path.startswith("/oem"):
+    if request.url.path.startswith("/oem"):
         telemetry.record_request(latency_ms)
     
     return response
@@ -80,7 +90,6 @@ async def root():
         "service": "EDON CAV Engine",
         "version": __version__,
         "endpoints": {
-            "single": "POST /cav",
             "batch": "POST /oem/cav/batch",
             "health": "GET /health",
             "telemetry": "GET /telemetry",
