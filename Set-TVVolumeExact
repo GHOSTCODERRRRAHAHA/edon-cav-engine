@@ -1,0 +1,39 @@
+function Set-TVVolumeExact {
+    param(
+        [Parameter(Mandatory)][int]$Target
+    )
+
+    # Clamp to a sane range
+    $Target = [Math]::Max(0, [Math]::Min(100, $Target))
+
+    # First-time use (or if we lost sync) → hard reset from zero
+    if ($script:CurrentVolume -eq $null) {
+        Write-Host "[TV] First-time set: forcing volume to $Target from zero baseline..."
+        TV-VolDown -Steps 60
+        if ($Target -gt 0) {
+            TV-VolUp -Steps $Target
+        }
+        $script:CurrentVolume = $Target
+        Write-Host "[TV] Volume should now be ≈ $Target on-screen."
+        return
+    }
+
+    # Normal path: just move relative from our last known volume
+    $delta = $Target - $script:CurrentVolume
+
+    if ($delta -eq 0) {
+        Write-Host "[TV] Volume already at $Target (shadow); no change needed."
+        return
+    }
+
+    if ($delta -gt 0) {
+        Write-Host "[TV] Raising volume from $($script:CurrentVolume) → $Target (+$delta)."
+        TV-VolUp -Steps $delta
+    } else {
+        $stepsDown = -1 * $delta
+        Write-Host "[TV] Lowering volume from $($script:CurrentVolume) → $Target (-$stepsDown)."
+        TV-VolDown -Steps $stepsDown
+    }
+
+    $script:CurrentVolume = $Target
+}

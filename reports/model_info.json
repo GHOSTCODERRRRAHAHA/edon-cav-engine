@@ -1,0 +1,14 @@
+{
+  "name": "cav_state_v3_2",
+  "features": 6,
+  "window": 240,
+  "sample_rate_hz": 4,
+  "pca_dim": 128,
+  "sha256": "176f8feae5f6c254ba8db43c50aa0569a03e39701e8f1fe7db7a083ad345570f",
+  "classes": [
+    0,
+    1,
+    2,
+    3
+  ]
+}

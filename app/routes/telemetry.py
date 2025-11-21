@@ -1,11 +1,8 @@
-"""Telemetry and health check routes."""
+"""Telemetry routes."""
 
 import time
 from fastapi import APIRouter
-from app.models import HealthResponse, TelemetryResponse
-from typing import Optional
-from app import __version__
-from app.routes.models import _discover_model
+from app.models import TelemetryResponse
 
 router = APIRouter(tags=["System"])
 
@@ -25,25 +22,6 @@ def record_request(latency_ms: float):
     global _request_count, _latency_sum
     _request_count += 1
     _latency_sum += latency_ms
-
-
-@router.get("/health", response_model=HealthResponse)
-async def health() -> HealthResponse:
-    """
-    Health check endpoint.
-    
-    Returns:
-        HealthResponse with service status, model identifier, and uptime
-    """
-    model_data = _discover_model()
-    uptime_s = get_uptime_seconds()
-    model_info = f"{model_data['name']} sha256={model_data['sha256'][:16]}... features={model_data['features']} window={model_data['window']}Hz*{model_data['sample_rate_hz']} pca={model_data['pca_dim']}"
-    
-    return HealthResponse(
-        ok=True,
-        model=model_info,
-        uptime_s=uptime_s
-    )
 
 
 @router.get("/telemetry", response_model=TelemetryResponse)

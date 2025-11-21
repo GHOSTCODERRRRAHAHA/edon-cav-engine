@@ -1,0 +1,71 @@
+{
+  "accuracy": 1.0,
+  "auroc": NaN,
+  "confusion_matrix": [
+    [
+      37,
+      0,
+      0
+    ],
+    [
+      0,
+      13,
+      0
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ],
+  "classification_report": {
+    "non-stress": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 37.0
+    },
+    "baseline": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 13.0
+    },
+    "stress": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "accuracy": 1.0,
+    "macro avg": {
+      "precision": 0.6666666666666666,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.6666666666666666,
+      "support": 50.0
+    },
+    "weighted avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 50.0
+    }
+  },
+  "cav_stats": {
+    "mean": 0.26,
+    "std": 0.4386342439892261,
+    "min": 0.0,
+    "max": 1.0
+  },
+  "drift_stats": {
+    "mean": -2.6645352591003756e-17,
+    "std": 0.9999977202014347,
+    "min": -0.5927476270155487,
+    "max": 1.6870509384288694
+  },
+  "n_samples": 50,
+  "state_distribution": {
+    "balanced": 13,
+    "restorative": 37
+  }
+}

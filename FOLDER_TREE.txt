@@ -1,0 +1,38 @@
+EDON SDK Folder Structure
+==========================
+
+sdk/
+└── python/
+    ├── edon/                    # Main SDK package
+    │   ├── __init__.py         # Package exports
+    │   ├── client.py           # EdonClient class
+    │   ├── transport.py        # Transport abstraction
+    │   ├── rest_transport.py   # REST HTTP transport
+    │   ├── grpc_transport.py   # gRPC transport
+    │   └── exceptions.py        # Exception classes
+    ├── setup.py                 # Setuptools setup
+    ├── pyproject.toml          # Modern Python packaging
+    └── README.md               # SDK documentation
+
+examples/
+└── python/
+    ├── simple_call.py          # Basic REST example
+    └── simple_grpc_example.py  # Basic gRPC example
+
+docs/
+    ├── API_OVERVIEW.md         # API documentation
+    └── OEM_INTEGRATION.md      # Integration guide
+
+integrations/
+└── grpc/
+    └── edon_grpc_service/
+        ├── server.py           # gRPC server implementation
+        ├── edon.proto          # Protocol buffer definitions
+        └── generate_proto.sh    # Protobuf generation script
+
+Key Points:
+- SDK is completely isolated (no engine imports)
+- Clean transport abstraction (REST/gRPC)
+- Environment variable support (EDON_BASE_URL, EDON_API_TOKEN)
+- Installable package: pip install -e sdk/python
+

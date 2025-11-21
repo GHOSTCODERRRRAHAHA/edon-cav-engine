@@ -38,8 +38,8 @@ function Invoke-Vizio {
   )
   $uri = ($env:VIZIO_BASE.TrimEnd('/')) + $Path
   $delay = 300
-  $headers = @{ AUTH = $env:VIZIO_AUTH; Connection = 'close' }
-  for($i=1; $i -le $Retries; $i++){
+   $headers = @{ AUTH = $env:VIZIO_AUTH }
+for($i=1; $i -le $Retries; $i++){
     try {
       if ($Body -ne $null) {
         return Invoke-RestMethod -Method $Method -Uri $uri -Body $Body -ContentType 'application/json' -Headers $headers -TimeoutSec 5

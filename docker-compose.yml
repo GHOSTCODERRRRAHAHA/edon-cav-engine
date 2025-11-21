@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  edon:
+    build: .
+    container_name: edon-cav-engine
+    ports:
+      - "8001:8001"   # REST API
+      - "50051:50051" # gRPC
+    environment:
+      EDON_AUTH_ENABLED: "false"
+      EDON_API_TOKEN: "dev-token"
+      EDON_BASE_URL: "http://0.0.0.0:8001"
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      # Mount model directory if models are external
+      # - ./models:/app/models:ro
+      # Mount data directory if needed
+      # - ./data:/app/data:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8001/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+

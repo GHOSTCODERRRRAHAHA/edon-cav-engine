@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+// EDON gRPC API v1 - FROZEN CONTRACT
+// Breaking changes will result in v2 package
+package edon.v1;
+
+// CavRequest - Request for CAV computation
+message CavRequest {
+    // Sensor window data (240 samples each, 4 seconds @ 60Hz)
+    repeated float eda = 1;          // EDA signal (240 samples)
+    repeated float temp = 2;         // Temperature signal (240 samples)
+    repeated float bvp = 3;          // BVP signal (240 samples)
+    repeated float acc_x = 4;        // ACC X (240 samples)
+    repeated float acc_y = 5;        // ACC Y (240 samples)
+    repeated float acc_z = 6;        // ACC Z (240 samples)
+    
+    // Environmental context
+    float temp_c = 7;                // Ambient temperature (°C)
+    float humidity = 8;              // Relative humidity (%)
+    int32 aqi = 9;                   // Air Quality Index
+    int32 local_hour = 10;           // Local hour [0-23]
+}
+
+// CavResponse - CAV computation response
+message CavResponse {
+    int32 cav_raw = 1;               // Raw CAV score [0-10000]
+    int32 cav_smooth = 2;            // Smoothed CAV score [0-10000]
+    string state = 3;                // State: overload, balanced, focus, restorative
+    ComponentScores parts = 4;       // Component scores
+    ControlScales controls = 5;      // Robot control scales
+    int64 timestamp_ms = 6;          // Unix timestamp (milliseconds)
+}
+
+// StateStreamRequest - Request for streaming state updates
+message StateStreamRequest {
+    // Same as CavRequest
+    repeated float eda = 1;
+    repeated float temp = 2;
+    repeated float bvp = 3;
+    repeated float acc_x = 4;
+    repeated float acc_y = 5;
+    repeated float acc_z = 6;
+    float temp_c = 7;
+    float humidity = 8;
+    int32 aqi = 9;
+    int32 local_hour = 10;
+    
+    // Streaming configuration
+    bool stream_mode = 11;           // Must be true for streaming
+}
+
+// StateStreamResponse - Streaming state update
+message StateStreamResponse {
+    int32 cav_raw = 1;
+    int32 cav_smooth = 2;
+    string state = 3;
+    ComponentScores parts = 4;
+    ControlScales controls = 5;
+    int64 timestamp_ms = 6;
+}
+
+// ComponentScores - Breakdown of CAV components
+message ComponentScores {
+    float bio = 1;                   // Biological score [0.0, 1.0]
+    float env = 2;                   // Environmental score [0.0, 1.0]
+    float circadian = 3;             // Circadian score [0.0, 1.0]
+    float p_stress = 4;              // Probability of stress [0.0, 1.0]
+}
+
+// ControlScales - Robot control parameters
+message ControlScales {
+    float speed = 1;                 // Speed scale [0.0, 1.0]
+    float torque = 2;                // Torque scale [0.0, 1.0]
+    float safety = 3;                // Safety margin scale [0.0, 1.0]
+}
+
+// EdonService - EDON CAV Engine gRPC Service (v1)
+service EdonService {
+    // GetState - Single request/response for CAV computation
+    rpc GetState(CavRequest) returns (CavResponse);
+    
+    // StreamState - Server-side streaming (push updates continuously)
+    rpc StreamState(StateStreamRequest) returns (stream StateStreamResponse);
+}

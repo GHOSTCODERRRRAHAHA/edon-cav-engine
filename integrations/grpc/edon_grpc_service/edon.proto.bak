@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package edon;
+
+// StreamDataRequest - Request for streaming EDON state
+message StreamDataRequest {
+    // Sensor window data
+    repeated float eda = 1;          // EDA signal (240 samples)
+    repeated float temp = 2;         // Temperature signal (240 samples)
+    repeated float bvp = 3;          // BVP signal (240 samples)
+    repeated float acc_x = 4;        // ACC X (240 samples)
+    repeated float acc_y = 5;        // ACC Y (240 samples)
+    repeated float acc_z = 6;        // ACC Z (240 samples)
+    
+    // Environmental context
+    float temp_c = 7;                // Ambient temperature (°C)
+    float humidity = 8;              // Relative humidity (%)
+    int32 aqi = 9;                   // Air Quality Index
+    int32 local_hour = 10;           // Local hour [0-23]
+    
+    // Streaming mode
+    bool stream_mode = 11;           // If true, server pushes updates continuously
+}
+
+// StreamStateResponse - EDON state response
+message StreamStateResponse {
+    int32 cav_raw = 1;               // Raw CAV score [0-10000]
+    int32 cav_smooth = 2;            // Smoothed CAV score [0-10000]
+    string state = 3;                 // State: overload, balanced, focus, restorative
+    ComponentScores parts = 4;       // Component scores
+    ControlScales controls = 5;       // Robot control scales
+    int64 timestamp_ms = 6;          // Unix timestamp (milliseconds)
+}
+
+// ComponentScores - Breakdown of CAV components
+message ComponentScores {
+    float bio = 1;                   // Biological score
+    float env = 2;                   // Environmental score
+    float circadian = 3;             // Circadian score
+    float p_stress = 4;              // Probability of stress
+}
+
+// ControlScales - Robot control parameters
+message ControlScales {
+    float speed = 1;                 // Speed scale [0.0, 1.0]
+    float torque = 2;                // Torque scale [0.0, 1.0]
+    float safety = 3;                // Safety margin scale [0.0, 1.0]
+}
+
+// gRPC Service Definition
+service EdonService {
+    // GetState - Single request/response
+    rpc GetState(StreamDataRequest) returns (StreamStateResponse);
+    
+    // StreamState - Server-side streaming (push updates)
+    rpc StreamState(StreamDataRequest) returns (stream StreamStateResponse);
+}
+

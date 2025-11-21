@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+// EDON gRPC API v2 - Multimodal Context Fusion
+package edon.v2;
+
+// Health request/response
+message HealthRequest {}
+
+message HealthResponse {
+    bool ok = 1;
+    string mode = 2;
+    string engine = 3;
+    bool neural_loaded = 4;
+    bool pca_loaded = 5;
+    double uptime_s = 6;
+    string version = 7;
+}
+
+// Input messages matching v2 REST schema
+message PhysioInput {
+    repeated float EDA = 1;
+    repeated float BVP = 2;
+    repeated float TEMP = 3;
+}
+
+message MotionInput {
+    repeated float ACC_x = 1;
+    repeated float ACC_y = 2;
+    repeated float ACC_z = 3;
+    repeated float velocity = 4;
+    repeated float torque = 5;
+}
+
+message EnvInput {
+    float temp_c = 1;
+    float humidity = 2;
+    float aqi = 3;
+    int32 local_hour = 4;
+}
+
+message VisionInput {
+    repeated float embedding = 1;
+    repeated string objects = 2;
+}
+
+message AudioInput {
+    repeated float embedding = 1;
+    repeated string keywords = 2;
+}
+
+message TaskInput {
+    string id = 1;          // Task identifier (maps to 'id' in REST, 'goal' in schema)
+    float complexity = 2;
+    float difficulty = 3;
+    string goal = 4;        // Optional: task goal/description (maps to 'goal' in schema)
+}
+
+message SystemInput {
+    float cpu_usage = 1;
+    float battery_level = 2;
+    float error_rate = 3;
+}
+
+// Single window for v2 CAV computation
+message CavWindowV2 {
+    PhysioInput physio = 1;
+    MotionInput motion = 2;
+    EnvInput environment = 3;
+    VisionInput vision = 4;
+    AudioInput audio = 5;
+    TaskInput task = 6;
+    SystemInput system = 7;
+    string device_profile = 8;  // optional hint
+}
+
+// Batch request
+message CavBatchV2Request {
+    repeated CavWindowV2 windows = 1;
+    string device_profile = 2;  // optional global profile
+}
+
+// Influence fields
+message Influences {
+    double speed_scale = 1;
+    double torque_scale = 2;
+    double safety_scale = 3;
+    bool caution_flag = 4;
+    bool emergency_flag = 5;
+    double focus_boost = 6;
+    bool recovery_recommended = 7;
+}
+
+// Metadata
+message Metadata {
+    repeated string modalities_present = 1;
+    int32 num_features = 2;
+    bool has_embeddings = 3;
+    map<string, double> scores = 4;
+    string device_profile = 5;
+    bool pca_fitted = 6;
+    double neural_confidence = 7;
+    map<string, double> neural_state_probs = 8;
+}
+
+// Single result
+message CavResultV2 {
+    bool ok = 1;
+    string error = 2;
+    repeated float cav_vector = 3;  // 128-dim
+    string state_class = 4;
+    double p_stress = 5;
+    double p_chaos = 6;
+    Influences influences = 7;
+    double confidence = 8;
+    Metadata metadata = 9;
+}
+
+// Batch response
+message CavBatchV2Response {
+    repeated CavResultV2 results = 1;
+    double latency_ms = 2;
+    string server_version = 3;
+}
+
+// Streaming response
+message CavStreamResponse {
+    bool ok = 1;
+    string error = 2;
+    CavResultV2 result = 3;
+}
+
+// EdonV2Service - EDON CAV Engine gRPC Service (v2)
+service EdonV2Service {
+    // Health check
+    rpc Health(HealthRequest) returns (HealthResponse);
+    
+    // Batch computation
+    rpc ComputeCavBatchV2(CavBatchV2Request) returns (CavBatchV2Response);
+    
+    // Bidirectional streaming: client sends windows, server responds with results
+    rpc StreamCavWindowsV2(stream CavWindowV2) returns (stream CavStreamResponse);
+}
+

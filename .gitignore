@@ -1,15 +1,55 @@
-﻿# env & cache
+﻿# ================================
+#  🔥 EDON ENGINE GITIGNORE
+# ================================
+
+# --- MODEL WEIGHTS (NEVER COMMIT) ---
+models/
+*.pt
+*.pth
+*.pkl
+*.onnx
+*.tflite
+
+# --- RELEASE BUNDLES ---
+release/
+releases/
+dist/
+*.tar
+*.tar.gz
+*.zip
+
+# --- DOCKER ARTIFACTS ---
+*.img
+*.tar
+*.layer
+docker/
+
+# --- LICENSE + SECURITY KEYS ---
+*.license
+*.lic
+*.key
+*.pem
+*.crt
+config/secrets/
+.env
+.env.*
+
+# --- PYTHON BUILD FILES ---
+__pycache__/
+*.egg-info/
+*.whl
+build/
+pip-wheel-metadata/
+
+# --- DEVELOPMENT LOCAL ---
 .venv/
 venv/
-__pycache__/
-.ipynb_checkpoints/
-# builds & temp
-dist/
-temp_sdk/
-*.zip
-# large data/models
-data/raw/
-outputs/
-*.parquet
-*.joblib
-*.pkl
+*.local
+logs/
+tmp/
+
+# --- OS / EDITOR ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

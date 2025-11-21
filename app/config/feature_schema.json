@@ -1,0 +1,5 @@
+﻿{
+  "features": ["EDA","TEMP","BVP","ACC_x","ACC_y","ACC_z"],
+  "window": 240,
+  "notes": "Default 6-signal schema matching embedder model_info"
+}

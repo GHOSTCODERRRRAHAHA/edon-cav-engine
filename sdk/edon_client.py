@@ -10,6 +10,7 @@ import requests
 import json
 from typing import Dict, Optional, List
 from pathlib import Path
+import os
 
 
 class EDONClient:
@@ -29,12 +30,18 @@ class EDONClient:
         Args:
             base_url: Base URL of the EDON API server
         """
-        self.base_url = base_url.rstrip('/')
+        env_base = os.getenv("EDON_API_BASE")
+        self.base_url = (env_base or base_url).rstrip('/')
         self.session = requests.Session()
         self.session.headers.update({
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         })
+        # Optional auth
+        if os.getenv("EDON_AUTH_ENABLED", "false").lower() in ("1", "true", "yes"):
+            token = os.getenv("EDON_API_TOKEN")
+            if token:
+                self.session.headers["Authorization"] = f"Bearer {token}"
     
     def post_cav(
         self,

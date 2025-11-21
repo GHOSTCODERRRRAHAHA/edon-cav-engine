@@ -1,42 +1,35 @@
 # EDON Python SDK
 
-Python SDK for the **EDON CAV Engine** — an adaptive state engine for physical AI (humanoids, wearables, and smart environments).
-
-EDON processes physiological sensor data (EDA, temperature, BVP, accelerometer) combined with environmental context (temperature, humidity, air quality, time of day) to compute **Context-Aware Vectors (CAV)** and predict adaptive states: `restorative`, `balanced`, `focus`, or `overload`.
-
-This SDK provides a clean Python interface to the EDON REST API, making it easy for robotics, wearable, and smart-home developers to integrate EDON into their applications.
+Product-ready Python SDK for the EDON CAV Engine.
 
 ## Installation
 
-### Local Development (Editable Install)
-
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd edon-cav-engine
+# Basic installation (REST only)
+pip install -e sdk/python
 
-# Install the SDK in editable mode
-cd sdk/python
-pip install -e .
-```
+# With gRPC support
+pip install -e "sdk/python[grpc]"
 
-### Production Install
-
-```bash
-pip install edon-sdk
+# Future: Install from PyPI
+pip install edon[grpc]
 ```
 
 ## Quick Start
 
-### Basic Usage
-
 ```python
-from edon_sdk import EdonClient
+from edon import EdonClient, TransportType
 
-# Initialize client (defaults to http://127.0.0.1:8000)
-client = EdonClient(base_url="http://127.0.0.1:8000")
+# REST transport (default, uses EDON_BASE_URL env var)
+client = EdonClient()
 
-# Create a sensor window (240 samples per signal)
+# Or explicitly
+client = EdonClient(
+    base_url="http://127.0.0.1:8001",
+    transport=TransportType.REST
+)
+
+# Create sensor window (240 samples per signal)
 window = {
     "EDA": [0.1] * 240,          # Electrodermal activity
     "TEMP": [36.5] * 240,        # Temperature
@@ -52,129 +45,104 @@ window = {
 
 # Compute CAV
 result = client.cav(window)
-
 print(f"State: {result['state']}")
-print(f"CAV (raw): {result['cav_raw']}")
-print(f"CAV (smooth): {result['cav_smooth']}")
-print(f"Parts: {result['parts']}")  # bio, env, circadian, p_stress
+print(f"CAV: {result['cav_smooth']}")
+print(f"P-Stress: {result['parts']['p_stress']:.3f}")
+
+# Classify state (convenience method)
+state = client.classify(window)
+print(f"State: {state}")
 ```
 
-### Batch Processing
+## Robot Integration Example
 
 ```python
-# Process multiple windows at once
-windows = [window1, window2, window3]
-results = client.cav_batch(windows)
+from edon import EdonClient
+import time
 
-for i, result in enumerate(results):
-    if result.get("ok"):
-        print(f"Window {i}: {result['state']} (CAV={result['cav_smooth']})")
-    else:
-        print(f"Window {i} error: {result.get('error')}")
+client = EdonClient()
+
+while True:
+    # Collect sensor data (4 seconds = 240 samples)
+    window = build_window_from_robot_sensors()
+    
+    # Get EDON state
+    result = client.cav(window)
+    state = result['state']
+    p_stress = result['parts']['p_stress']
+    
+    # Map to control scales
+    if state == "restorative":
+        speed, torque, safety = 0.7, 0.7, 0.95
+    elif state == "balanced":
+        speed, torque, safety = 1.0, 1.0, 0.85
+    elif state == "focus":
+        speed, torque, safety = 1.2, 1.1, 0.8
+    elif state == "overload":
+        speed, torque, safety = 0.4, 0.4, 1.0
+    
+    # Apply to robot controllers
+    apply_scales_to_controllers(speed, torque, safety)
+    
+    time.sleep(4.0)  # Wait for next window
 ```
 
-### Authentication
-
-If your EDON API requires authentication:
+## gRPC Transport
 
 ```python
-# Option 1: Pass API key directly
+from edon import EdonClient, TransportType
+
+# gRPC transport
 client = EdonClient(
-    base_url="https://api.edon.example.com",
-    api_key="your-api-token-here"
+    transport=TransportType.GRPC,
+    grpc_host="localhost",
+    grpc_port=50051
 )
 
-# Option 2: Use environment variable
-import os
-os.environ["EDON_API_TOKEN"] = "your-api-token-here"
-client = EdonClient(base_url="https://api.edon.example.com")
+result = client.cav(window)
+
+# Control scales included in gRPC response
+if 'controls' in result:
+    print(f"Speed: {result['controls']['speed']:.2f}")
+    print(f"Torque: {result['controls']['torque']:.2f}")
+    print(f"Safety: {result['controls']['safety']:.2f}")
+
+# Streaming (server push)
+for update in client.stream(window):
+    print(f"State: {update['state']}, CAV: {update['cav_smooth']}")
+    # Process update...
+    
+client.close()  # Close gRPC channel
 ```
 
-### Health Check
+## API Reference
 
-```python
-health = client.health()
-print(f"Status: {health['ok']}")
-print(f"Model: {health['model']}")
-print(f"Uptime: {health['uptime_s']:.1f}s")
-```
+### EdonClient
 
-### Ingest & Debug State
+**Methods**:
+- `cav(window)` - Compute CAV from sensor window
+- `cav_batch(windows)` - Batch CAV computation (REST only, 1-5 windows)
+- `classify(window)` - Classify state (convenience method)
+- `stream(window)` - Stream CAV updates (gRPC only)
+- `health()` - Check service health
+- `close()` - Close connections (gRPC only)
 
-```python
-# Ingest sensor frames
-payload = {
-    "frames": [
-        {
-            "ts": 1234567890.0,
-            "user_id": "user123",
-            "env": {"co2": 600, "dba": 40},
-        }
-    ]
-}
-response = client.ingest(payload)
+**Parameters**:
+- `base_url` - REST API base URL (default: from `EDON_BASE_URL` env var)
+- `api_key` - API token (default: from `EDON_API_TOKEN` env var)
+- `transport` - `TransportType.REST` or `TransportType.GRPC`
+- `grpc_host` - gRPC server host (default: "localhost")
+- `grpc_port` - gRPC server port (default: 50051)
 
-# Get debug state (if available)
-state = client.debug_state()
-if state:
-    print(f"Current mode: {state.get('mode')}")
-```
+## Environment Variables
 
-## Configuration
+- `EDON_BASE_URL` - Base URL for REST API (default: http://127.0.0.1:8000)
+- `EDON_API_TOKEN` - API token for authentication (optional)
 
-The `EdonClient` supports the following configuration options:
+## Examples
 
-- **base_url**: API base URL (default: `http://127.0.0.1:8000`, or `EDON_BASE_URL` env var)
-- **api_key**: API token for authentication (default: `EDON_API_TOKEN` env var)
-- **timeout**: Request timeout in seconds (default: `5.0`)
-- **max_retries**: Maximum retries on 5xx/connection errors (default: `2`)
-- **verbose**: Enable request logging to stdout (default: `False`)
+See `examples/python/` and `clients/robot_example.py` for complete examples.
 
-## Error Handling
+## API Contract
 
-The SDK provides custom exceptions for different error scenarios:
-
-```python
-from edon_sdk import EdonClient, EdonAuthError, EdonHTTPError, EdonConnectionError
-
-try:
-    result = client.cav(window)
-except EdonAuthError:
-    print("Authentication failed - check your API key")
-except EdonHTTPError as e:
-    print(f"API error {e.status_code}: {e}")
-except EdonConnectionError:
-    print("Connection failed - is the server running?")
-```
-
-## Example Script
-
-See `examples/basic_infer.py` for a complete example that:
-- Creates a synthetic sensor window
-- Calls the CAV API
-- Prints state, CAV scores, and component parts
-
-Run it with:
-
-```bash
-python examples/basic_infer.py --base-url http://127.0.0.1:8000
-```
-
-## Versioning
-
-This SDK is currently tied to engine model `cav_state_v3_2`. Future releases will align SDK versions with engine tags (e.g., v1.0.0, v1.1.0, etc.).
-
-## Requirements
-
-- Python >= 3.10
-- `requests >= 2.31.0`
-- `urllib3 >= 2.0.0`
-
-## License
-
-MIT
-
-## Support
-
-For issues, questions, or contributions, please open an issue on the repository.
-
+See `docs/OEM_API_CONTRACT.md` for exact request/response schemas and versioning policy.
