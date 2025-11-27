@@ -1,0 +1,50 @@
+{
+  "0": {
+    "seed": 0,
+    "interventions_total": 30,
+    "interventions_per_episode": 1.0,
+    "freeze_events_total": 0,
+    "freeze_events_per_episode": 0.0,
+    "stability_avg": 0.021525136052321116,
+    "stability_std": 0.005680869465181683,
+    "avg_episode_length": 339.96666666666664,
+    "success_rate": 0.0,
+    "edon_score_v8": 65.44613571502094
+  },
+  "42": {
+    "seed": 42,
+    "interventions_total": 30,
+    "interventions_per_episode": 1.0,
+    "freeze_events_total": 0,
+    "freeze_events_per_episode": 0.0,
+    "stability_avg": 0.01972914179623633,
+    "stability_std": 0.006018978799933665,
+    "avg_episode_length": 336.3666666666667,
+    "success_rate": 0.0,
+    "edon_score_v8": 66.06753370465063
+  },
+  "100": {
+    "seed": 100,
+    "interventions_total": 30,
+    "interventions_per_episode": 1.0,
+    "freeze_events_total": 0,
+    "freeze_events_per_episode": 0.0,
+    "stability_avg": 0.0197448995502763,
+    "stability_std": 0.005036412511196786,
+    "avg_episode_length": 311.8666666666667,
+    "success_rate": 0.0,
+    "edon_score_v8": 66.01301849073663
+  },
+  "200": {
+    "seed": 200,
+    "interventions_total": 30,
+    "interventions_per_episode": 1.0,
+    "freeze_events_total": 0,
+    "freeze_events_per_episode": 0.0,
+    "stability_avg": 0.01856312134293613,
+    "stability_std": 0.003902959788736394,
+    "avg_episode_length": 311.43333333333334,
+    "success_rate": 0.0,
+    "edon_score_v8": 66.42577419663901
+  }
+}
