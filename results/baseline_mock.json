@@ -1,0 +1,177 @@
+{
+  "mode": "baseline",
+  "episodes": 10,
+  "interventions_total": 0,
+  "interventions_per_episode": 0.0,
+  "freeze_events_total": 0,
+  "freeze_events_per_episode": 0.0,
+  "stability_avg": 0.0071304134236419734,
+  "stability_std": 0.0024669568067338683,
+  "stability_min": 0.0041034050763873965,
+  "stability_max": 0.013481245006976481,
+  "success_rate": 0.0,
+  "avg_episode_length": 1000.0,
+  "avg_episode_time": 0.029077553749084474,
+  "raw_episode_metrics": [
+    {
+      "episode_id": 0,
+      "interventions": 0,
+      "freeze_events": 0,
+      "stability_score": 0.007954635093890184,
+      "episode_length": 1000,
+      "episode_time": 0.028549671173095703,
+      "success": false,
+      "intervention_times": [],
+      "freeze_times": [],
+      "metadata": {
+        "max_steps": 10000,
+        "done": true,
+        "final_reward": 0.0
+      }
+    },
+    {
+      "episode_id": 1,
+      "interventions": 0,
+      "freeze_events": 0,
+      "stability_score": 0.005532169343209367,
+      "episode_length": 1000,
+      "episode_time": 0.028014421463012695,
+      "success": false,
+      "intervention_times": [],
+      "freeze_times": [],
+      "metadata": {
+        "max_steps": 10000,
+        "done": true,
+        "final_reward": 0.0
+      }
+    },
+    {
+      "episode_id": 2,
+      "interventions": 0,
+      "freeze_events": 0,
+      "stability_score": 0.005992295254710102,
+      "episode_length": 1000,
+      "episode_time": 0.030152082443237305,
+      "success": false,
+      "intervention_times": [],
+      "freeze_times": [],
+      "metadata": {
+        "max_steps": 10000,
+        "done": true,
+        "final_reward": 0.0
+      }
+    },
+    {
+      "episode_id": 3,
+      "interventions": 0,
+      "freeze_events": 0,
+      "stability_score": 0.0075832328011417646,
+      "episode_length": 1000,
+      "episode_time": 0.030088186264038086,
+      "success": false,
+      "intervention_times": [],
+      "freeze_times": [],
+      "metadata": {
+        "max_steps": 10000,
+        "done": true,
+        "final_reward": 0.0
+      }
+    },
+    {
+      "episode_id": 4,
+      "interventions": 0,
+      "freeze_events": 0,
+      "stability_score": 0.013481245006976481,
+      "episode_length": 1000,
+      "episode_time": 0.02908039093017578,
+      "success": false,
+      "intervention_times": [],
+      "freeze_times": [],
+      "metadata": {
+        "max_steps": 10000,
+        "done": true,
+        "final_reward": 0.0
+      }
+    },
+    {
+      "episode_id": 5,
+      "interventions": 0,
+      "freeze_events": 0,
+      "stability_score": 0.007526759872237468,
+      "episode_length": 1000,
+      "episode_time": 0.028031110763549805,
+      "success": false,
+      "intervention_times": [],
+      "freeze_times": [],
+      "metadata": {
+        "max_steps": 10000,
+        "done": true,
+        "final_reward": 0.0
+      }
+    },
+    {
+      "episode_id": 6,
+      "interventions": 0,
+      "freeze_events": 0,
+      "stability_score": 0.0041034050763873965,
+      "episode_length": 1000,
+      "episode_time": 0.02804732322692871,
+      "success": false,
+      "intervention_times": [],
+      "freeze_times": [],
+      "metadata": {
+        "max_steps": 10000,
+        "done": true,
+        "final_reward": 0.0
+      }
+    },
+    {
+      "episode_id": 7,
+      "interventions": 0,
+      "freeze_events": 0,
+      "stability_score": 0.0056937475219879805,
+      "episode_length": 1000,
+      "episode_time": 0.029541969299316406,
+      "success": false,
+      "intervention_times": [],
+      "freeze_times": [],
+      "metadata": {
+        "max_steps": 10000,
+        "done": true,
+        "final_reward": 0.0
+      }
+    },
+    {
+      "episode_id": 8,
+      "interventions": 0,
+      "freeze_events": 0,
+      "stability_score": 0.005292121623332643,
+      "episode_length": 1000,
+      "episode_time": 0.030072450637817383,
+      "success": false,
+      "intervention_times": [],
+      "freeze_times": [],
+      "metadata": {
+        "max_steps": 10000,
+        "done": true,
+        "final_reward": 0.0
+      }
+    },
+    {
+      "episode_id": 9,
+      "interventions": 0,
+      "freeze_events": 0,
+      "stability_score": 0.008144522642546349,
+      "episode_length": 1000,
+      "episode_time": 0.02919793128967285,
+      "success": false,
+      "intervention_times": [],
+      "freeze_times": [],
+      "metadata": {
+        "max_steps": 10000,
+        "done": true,
+        "final_reward": 0.0
+      }
+    }
+  ]
+}

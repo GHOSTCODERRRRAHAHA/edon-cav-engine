@@ -1,0 +1,18 @@
+{
+  "v8_only": {
+    "interventions": 1,
+    "stability": 0.014084240997575766,
+    "episode_length": 264,
+    "success": false
+  },
+  "v8_edon_core": {
+    "interventions": 1,
+    "stability": 0.02555812515262102,
+    "episode_length": 374,
+    "success": false
+  },
+  "comparison": {
+    "delta_interventions": 0.0,
+    "delta_stability": 0.011473884155045255
+  }
+}

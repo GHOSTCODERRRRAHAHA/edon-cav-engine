@@ -8,7 +8,14 @@ import os
 import logging
 from pathlib import Path
 from app import __version__
-from app.routes import batch, telemetry, memory, dashboard, metrics
+from app.routes import batch, telemetry, memory, metrics
+# Dashboard is optional (requires dash, plotly)
+try:
+    from app.routes import dashboard
+    DASHBOARD_AVAILABLE = True
+except ImportError:
+    DASHBOARD_AVAILABLE = False
+    dashboard = None
 from app.routes.streaming import router as streaming_router
 from app.routes.ingest import router as ingest_router
 from app.routes.models import router as models_router
@@ -206,6 +213,15 @@ from app.routes import debug_state
 app.include_router(debug_state.router)
 app.include_router(models_router, prefix="/models", tags=["models"])
 
+# Robot stability route (v8 integration)
+try:
+    from app.routes import robot_stability
+    app.include_router(robot_stability.router)
+    logger.info("[EDON] Robot stability route (v8) included")
+except ImportError as e:
+    logger.warning(f"[EDON] Robot stability route not available: {e}")
+    robot_stability = None
+
 # v2 routes (multimodal - only if v2 mode)
 if EDON_MODE == "v2":
     from app.routes import v2_batch, v2_stream
@@ -218,11 +234,72 @@ if EDON_MODE == "v2":
     if LICENSING_AVAILABLE:
         from app.routes import license
         app.include_router(license.router)
+
+
+# ============================================================================
+# Load v8 Models for Robot Stability (if available)
+# ============================================================================
+
+V8_POLICY_LOADED = False
+V8_FAIL_RISK_LOADED = False
+
+@app.on_event("startup")
+async def load_v8_models():
+    """Load v8 models for robot stability control."""
+    global V8_POLICY_LOADED, V8_FAIL_RISK_LOADED
     
-    # License management endpoints (v2 only)
-    if LICENSING_AVAILABLE:
-        from app.routes import license
-        app.include_router(license.router)
+    if robot_stability is None:
+        logger.info("[EDON] Robot stability route not available, skipping v8 model loading")
+        return
+    
+    try:
+        import torch
+        from pathlib import Path
+        from training.edon_v8_policy import EdonV8StrategyPolicy
+        from training.fail_risk_model import FailRiskModel
+        
+        # Model paths
+        v8_policy_path = Path("models/edon_v8_strategy_memory_features.pt")
+        fail_risk_path = Path("models/edon_fail_risk_v1_fixed_v2.pt")
+        
+        # Load v8 policy
+        if v8_policy_path.exists():
+            logger.info(f"[EDON] Loading v8 policy from {v8_policy_path}")
+            checkpoint = torch.load(v8_policy_path, map_location="cpu", weights_only=False)
+            input_size = checkpoint.get("input_size", 248)
+            policy = EdonV8StrategyPolicy(input_size=input_size)
+            policy.load_state_dict(checkpoint["policy_state_dict"])
+            policy.eval()
+            V8_POLICY_LOADED = True
+            logger.info(f"[EDON] v8 policy loaded: input_size={input_size}")
+        else:
+            logger.warning(f"[EDON] v8 policy not found at {v8_policy_path}, robot stability endpoint will be unavailable")
+            return
+        
+        # Load fail-risk model
+        if fail_risk_path.exists():
+            logger.info(f"[EDON] Loading fail-risk model from {fail_risk_path}")
+            fail_risk_checkpoint = torch.load(fail_risk_path, map_location="cpu", weights_only=False)
+            fail_risk_input_size = fail_risk_checkpoint.get("input_size", 15)
+            fail_risk_model = FailRiskModel(input_size=fail_risk_input_size)
+            fail_risk_model.load_state_dict(fail_risk_checkpoint["model_state_dict"])
+            fail_risk_model.eval()
+            V8_FAIL_RISK_LOADED = True
+            logger.info(f"[EDON] fail-risk model loaded: input_size={fail_risk_input_size}")
+        else:
+            logger.warning(f"[EDON] fail-risk model not found at {fail_risk_path}, using default")
+            # Create a dummy fail-risk model that always returns 0.0
+            fail_risk_model = None
+        
+        # Set models in robot_stability route
+        robot_stability.set_v8_models(policy, fail_risk_model, input_size)
+        logger.info("[EDON] v8 models loaded successfully, robot stability endpoint ready")
+        
+    except ImportError as e:
+        logger.warning(f"[EDON] Could not import v8 dependencies: {e}, robot stability endpoint will be unavailable")
+    except Exception as e:
+        logger.error(f"[EDON] Error loading v8 models: {e}", exc_info=True)
+        logger.warning("[EDON] Robot stability endpoint will be unavailable")
 
 
 # Mount dashboard
@@ -265,12 +342,15 @@ async def root():
         "v1": {
             "batch": "POST /oem/cav/batch"
         },
+        "robot": {
+            "stability": "POST /oem/robot/stability"
+        },
         "common": {
             "health": "GET /health",
             "telemetry": "GET /telemetry",
             "memory_summary": "GET /memory/summary",
             "memory_clear": "POST /memory/clear",
-            "dashboard": "GET /dashboard",
+            "dashboard": "GET /dashboard" if DASHBOARD_AVAILABLE else "Dashboard not available (dash not installed)",
             "models_info": "GET /models/info",
             "docs": "/docs"
         }
@@ -336,7 +416,7 @@ async def health():
         model_data = _discover_model()
         model_info = f"{model_data['name']} sha256={model_data['sha256'][:16]}... features={model_data['features']} window={model_data['window']}Hz*{model_data['sample_rate_hz']} pca={model_data['pca_dim']}"
         
-        return {
+        health_data = {
             "ok": True,
             "mode": "v1",
             "engine": "v1",
@@ -345,6 +425,20 @@ async def health():
             "pca_loaded": False,
             "uptime_s": uptime_s
         }
+        
+        # Add v8 model status if robot_stability route is available
+        if robot_stability is not None:
+            try:
+                from app.routes.robot_stability import V8_POLICY, V8_FAIL_RISK_MODEL
+                health_data["v8_robot_stability"] = {
+                    "available": V8_POLICY is not None and V8_FAIL_RISK_MODEL is not None,
+                    "policy_loaded": V8_POLICY is not None,
+                    "fail_risk_loaded": V8_FAIL_RISK_MODEL is not None
+                }
+            except:
+                health_data["v8_robot_stability"] = {"available": False}
+        
+        return health_data
 
 
 if __name__ == "__main__":

@@ -61,7 +61,7 @@ class EdonClient:
         
         Args:
             base_url: Base URL of the EDON API (for REST). If not provided, reads from
-                     EDON_BASE_URL env var, or defaults to http://127.0.0.1:8000
+                     EDON_BASE_URL env var, or defaults to http://127.0.0.1:8001
             api_key: API token for authentication (REST only). If not provided, reads from
                     EDON_API_TOKEN env var
             timeout: Request timeout in seconds (default: 5.0)
@@ -78,7 +78,7 @@ class EdonClient:
         
         # Initialize transport layer
         if transport == TransportType.REST:
-            base_url = base_url or os.getenv("EDON_BASE_URL", "http://127.0.0.1:8000")
+            base_url = base_url or os.getenv("EDON_BASE_URL", "http://127.0.0.1:8001")
             api_key = api_key or os.getenv("EDON_API_TOKEN")
             self.transport = RESTTransport(
                 base_url=base_url,
@@ -344,6 +344,62 @@ class EdonClient:
         """
         result = self.cav(window)
         return result.get("state", "unknown")
+    
+    def robot_stability(self, robot_state: Dict[str, Any], history: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
+        """
+        Compute robot stability control from robot state (v8 integration).
+        
+        This endpoint uses EDON v8 strategy policy to compute control modulations
+        that prevent robot interventions and maintain stability.
+        
+        Args:
+            robot_state: Robot state dict with:
+                       - roll: float (radians)
+                       - pitch: float (radians)
+                       - roll_velocity: float (rad/s)
+                       - pitch_velocity: float (rad/s)
+                       - com_x: float (optional, default: 0.0)
+                       - com_y: float (optional, default: 0.0)
+            history: Optional list of previous robot states (for temporal memory, max 8)
+        
+        Returns:
+            Dict with:
+            - strategy_id: int [0-3] - Strategy selection
+            - strategy_name: str - Strategy name
+            - modulations: Dict with gain_scale, compliance, bias
+            - intervention_risk: float [0.0-1.0] - Predicted intervention risk
+            - latency_ms: float - Processing latency
+        
+        Raises:
+            EdonHTTPError: If the request fails (REST only)
+        """
+        if self.transport_type != TransportType.REST:
+            raise EdonError("robot_stability() is only available for REST transport")
+        
+        import requests
+        url = f"{self.transport.base_url}/oem/robot/stability"
+        headers = self.transport._get_headers()
+        headers["Content-Type"] = "application/json"
+        
+        payload = {"robot_state": robot_state}
+        if history is not None:
+            payload["history"] = history
+        
+        try:
+            response = self.transport.session.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=self.transport.timeout
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.HTTPError as e:
+            from .exceptions import EdonHTTPError
+            raise EdonHTTPError(f"HTTP {response.status_code}: {response.text}", response.status_code) from e
+        except Exception as e:
+            from .exceptions import EdonError
+            raise EdonError(f"Request failed: {str(e)}") from e
     
     def health(self) -> Dict[str, Any]:
         """

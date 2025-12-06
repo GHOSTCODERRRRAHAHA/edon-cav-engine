@@ -1,7 +1,8 @@
 # EDON OEM Integration Guide
 
 **Version**: v1.0  
-**Last Updated**: 2025-11-20
+**Last Updated**: 2025-11-20  
+**Contact:** Charlie Biggins - charlie@edoncore.com
 
 Complete guide for integrating EDON CAV Engine into robotics systems.
 
@@ -11,13 +12,23 @@ Complete guide for integrating EDON CAV Engine into robotics systems.
 
 EDON is an **adaptive state engine** for physical AI (humanoids, wearables, smart environments). 
 
-**Input**: A 4-second sensor window (240 samples) of physiological and environmental data  
-**Output**: 
-- **State**: `restorative`, `balanced`, `focus`, or `overload`
-- **p_stress**: Probability of stress [0.0-1.0]
-- **Control scales**: Recommended speed, torque, and safety margins for robot behavior
+**Two Main Capabilities:**
 
-**Use Case**: Adapt robot behavior in real-time based on operator/occupant physiological state.
+1. **Human State Prediction** (`/oem/cav/batch`)
+   - **Input**: A 4-second sensor window (240 samples) of physiological and environmental data  
+   - **Output**: 
+     - **State**: `restorative`, `balanced`, `focus`, or `overload`
+     - **p_stress**: Probability of stress [0.0-1.0]
+     - **Control scales**: Recommended speed, torque, and safety margins for robot behavior
+   - **Use Case**: Adapt robot behavior in real-time based on operator/occupant physiological state.
+
+2. **Robot Stability Control** (`/oem/robot/stability`) ⭐ NEW
+   - **Input**: Robot state (roll, pitch, velocities, COM position)
+   - **Output**: 
+     - **Strategy**: Control strategy selection (NORMAL, HIGH_DAMPING, RECOVERY_BALANCE, COMPLIANT_TERRAIN)
+     - **Modulations**: Gain scale, compliance, bias adjustments
+     - **Intervention risk**: Predicted risk of intervention/fall
+   - **Use Case**: Prevent robot interventions and maintain stability (97% intervention reduction)
 
 ---
 
@@ -27,11 +38,12 @@ EDON is an **adaptive state engine** for physical AI (humanoids, wearables, smar
 
 **Best for**: HTTP-based architectures, web applications, simple integrations
 
+**Human State Prediction:**
 ```python
 from edon import EdonClient, TransportType
 
 client = EdonClient(
-    base_url="http://localhost:8001",
+    base_url="http://localhost:8002",
     transport=TransportType.REST
 )
 
@@ -40,6 +52,22 @@ result = client.cav(window)
 
 print(f"State: {result['state']}")
 print(f"P-Stress: {result['parts']['p_stress']:.3f}")
+```
+
+**Robot Stability Control:**
+```python
+robot_state = {
+    "roll": 0.05,
+    "pitch": 0.02,
+    "roll_velocity": 0.1,
+    "pitch_velocity": 0.05,
+    "com_x": 0.0,
+    "com_y": 0.0
+}
+
+stability = client.robot_stability(robot_state)
+print(f"Strategy: {stability['strategy_name']}")
+print(f"Gain Scale: {stability['modulations']['gain_scale']:.2f}")
 ```
 
 ### 2. gRPC

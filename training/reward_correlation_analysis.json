@@ -1,0 +1,313 @@
+{
+  "episodes": [
+    {
+      "episode": 0,
+      "total_reward": -420.6563282100428,
+      "edon_score": 43.74071266491223,
+      "interventions": 1,
+      "stability": 0.09237821833771943,
+      "length": 373,
+      "reward_per_step": -1.12776495498671
+    },
+    {
+      "episode": 1,
+      "total_reward": -547.8383718935106,
+      "edon_score": 40.084,
+      "interventions": 1,
+      "stability": 0.19795669970083213,
+      "length": 221,
+      "reward_per_step": -2.478906660151632
+    },
+    {
+      "episode": 2,
+      "total_reward": -593.0929444176227,
+      "edon_score": 40.276,
+      "interventions": 1,
+      "stability": 0.19091013853283606,
+      "length": 269,
+      "reward_per_step": -2.204806484823876
+    },
+    {
+      "episode": 3,
+      "total_reward": -539.2914147163427,
+      "edon_score": 40.196000000000005,
+      "interventions": 1,
+      "stability": 0.18767335422128903,
+      "length": 249,
+      "reward_per_step": -2.1658289747644286
+    },
+    {
+      "episode": 4,
+      "total_reward": -476.86625096954475,
+      "edon_score": 40.872,
+      "interventions": 1,
+      "stability": 0.10070767965903485,
+      "length": 418,
+      "reward_per_step": -1.1408283516017816
+    },
+    {
+      "episode": 5,
+      "total_reward": -482.10156494526103,
+      "edon_score": 40.572,
+      "interventions": 1,
+      "stability": 0.11263301424246608,
+      "length": 343,
+      "reward_per_step": -1.40554392112321
+    },
+    {
+      "episode": 6,
+      "total_reward": -597.3982500759092,
+      "edon_score": 40.312000000000005,
+      "interventions": 1,
+      "stability": 0.18182156983489278,
+      "length": 278,
+      "reward_per_step": -2.1489145686183786
+    },
+    {
+      "episode": 7,
+      "total_reward": -386.959136086754,
+      "edon_score": 41.45738164887511,
+      "interventions": 1,
+      "stability": 0.09756654587781222,
+      "length": 321,
+      "reward_per_step": -1.2054801747250903
+    },
+    {
+      "episode": 8,
+      "total_reward": -450.75092252235413,
+      "edon_score": 40.404,
+      "interventions": 1,
+      "stability": 0.1193385066076394,
+      "length": 301,
+      "reward_per_step": -1.49751137050616
+    },
+    {
+      "episode": 9,
+      "total_reward": -468.15178576905265,
+      "edon_score": 40.816,
+      "interventions": 1,
+      "stability": 0.10245149257677695,
+      "length": 404,
+      "reward_per_step": -1.1587915489332987
+    },
+    {
+      "episode": 10,
+      "total_reward": -398.2286018670479,
+      "edon_score": 43.205196727363045,
+      "interventions": 1,
+      "stability": 0.09336700818159238,
+      "length": 338,
+      "reward_per_step": -1.1781911297841654
+    },
+    {
+      "episode": 11,
+      "total_reward": -427.622254876519,
+      "edon_score": 42.637668833730494,
+      "interventions": 1,
+      "stability": 0.09470582791567378,
+      "length": 330,
+      "reward_per_step": -1.2958250147773303
+    },
+    {
+      "episode": 12,
+      "total_reward": -513.8772286242948,
+      "edon_score": 40.336000000000006,
+      "interventions": 1,
+      "stability": 0.15036804211612975,
+      "length": 284,
+      "reward_per_step": -1.8094268613531508
+    },
+    {
+      "episode": 13,
+      "total_reward": -429.3047628463644,
+      "edon_score": 40.332,
+      "interventions": 1,
+      "stability": 0.11005488282561035,
+      "length": 283,
+      "reward_per_step": -1.51697796058786
+    },
+    {
+      "episode": 14,
+      "total_reward": -470.3781847812823,
+      "edon_score": 40.472,
+      "interventions": 1,
+      "stability": 0.12147347600866276,
+      "length": 318,
+      "reward_per_step": -1.4791766817021457
+    },
+    {
+      "episode": 15,
+      "total_reward": -433.0522253317037,
+      "edon_score": 40.196000000000005,
+      "interventions": 1,
+      "stability": 0.12291614372280024,
+      "length": 249,
+      "reward_per_step": -1.7391655635811394
+    },
+    {
+      "episode": 16,
+      "total_reward": -607.0404865963768,
+      "edon_score": 40.632000000000005,
+      "interventions": 1,
+      "stability": 0.15121661990518076,
+      "length": 358,
+      "reward_per_step": -1.695643817308315
+    },
+    {
+      "episode": 17,
+      "total_reward": -356.45689675777055,
+      "edon_score": 52.16559348346411,
+      "interventions": 1,
+      "stability": 0.07195601629133973,
+      "length": 437,
+      "reward_per_step": -0.8156908392626329
+    },
+    {
+      "episode": 18,
+      "total_reward": -460.80446050134236,
+      "edon_score": 40.404,
+      "interventions": 1,
+      "stability": 0.11610960798577304,
+      "length": 301,
+      "reward_per_step": -1.530911828908114
+    },
+    {
+      "episode": 19,
+      "total_reward": -507.28679593852576,
+      "edon_score": 40.516000000000005,
+      "interventions": 1,
+      "stability": 0.12368973792770195,
+      "length": 329,
+      "reward_per_step": -1.5419051548283458
+    },
+    {
+      "episode": 20,
+      "total_reward": -352.5109901094465,
+      "edon_score": 44.68358194910028,
+      "interventions": 1,
+      "stability": 0.08932104512724931,
+      "length": 303,
+      "reward_per_step": -1.1634026076219355
+    },
+    {
+      "episode": 21,
+      "total_reward": -435.72553460316055,
+      "edon_score": 40.188,
+      "interventions": 1,
+      "stability": 0.14418204511242647,
+      "length": 247,
+      "reward_per_step": -1.7640709902961966
+    },
+    {
+      "episode": 22,
+      "total_reward": -490.65683626047564,
+      "edon_score": 43.002365945756665,
+      "interventions": 1,
+      "stability": 0.09577408513560834,
+      "length": 528,
+      "reward_per_step": -0.9292743110993857
+    },
+    {
+      "episode": 23,
+      "total_reward": -467.9310909728088,
+      "edon_score": 40.120000000000005,
+      "interventions": 1,
+      "stability": 0.15920419643418754,
+      "length": 230,
+      "reward_per_step": -2.0344830042296036
+    },
+    {
+      "episode": 24,
+      "total_reward": -398.0095054590772,
+      "edon_score": 40.0,
+      "interventions": 1,
+      "stability": 0.1341752689899966,
+      "length": 200,
+      "reward_per_step": -1.9900475272953861
+    },
+    {
+      "episode": 25,
+      "total_reward": -419.0329003537764,
+      "edon_score": 40.372,
+      "interventions": 1,
+      "stability": 0.1077942895104513,
+      "length": 293,
+      "reward_per_step": -1.4301464175896805
+    },
+    {
+      "episode": 26,
+      "total_reward": -589.8818092593938,
+      "edon_score": 40.752,
+      "interventions": 1,
+      "stability": 0.1395999773931054,
+      "length": 388,
+      "reward_per_step": -1.52031394139019
+    },
+    {
+      "episode": 27,
+      "total_reward": -402.2355071405124,
+      "edon_score": 40.304,
+      "interventions": 1,
+      "stability": 0.10725295142869973,
+      "length": 276,
+      "reward_per_step": -1.4573750258714218
+    },
+    {
+      "episode": 28,
+      "total_reward": -404.27466105999787,
+      "edon_score": 40.168000000000006,
+      "interventions": 1,
+      "stability": 0.11880068312491783,
+      "length": 242,
+      "reward_per_step": -1.670556450661148
+    },
+    {
+      "episode": 29,
+      "total_reward": -601.0692484925908,
+      "edon_score": 40.252,
+      "interventions": 1,
+      "stability": 0.19907349855826098,
+      "length": 263,
+      "reward_per_step": -2.2854344049147937
+    }
+  ],
+  "analysis": {
+    "reward_score_correlation": 0.44583012799367183,
+    "reward_interventions_correlation": NaN,
+    "reward_stability_correlation": -0.7888489086017866,
+    "reward_length_correlation": 0.029166342979036582,
+    "reward_intervention_score_correlation": 0.0,
+    "reward_stability_score_correlation": 0.4695230294458255,
+    "reward_length_bonus_correlation": 0.02916634297903658,
+    "reward_stats": {
+      "mean": -470.94956504796204,
+      "std": 73.21344939727614,
+      "min": -607.0404865963768,
+      "max": -352.5109901094465
+    },
+    "edon_score_stats": {
+      "mean": 41.31561670844006,
+      "std": 2.3435051077017524,
+      "min": 40.0,
+      "max": 52.16559348346411
+    },
+    "intervention_stats": {
+      "mean": 1.0,
+      "std": 0.0,
+      "min": 1,
+      "max": 1
+    },
+    "stability_stats": {
+      "mean": 0.12781575410955556,
+      "std": 0.034721940765477376,
+      "min": 0.07195601629133973,
+      "max": 0.19907349855826098
+    }
+  },
+  "suggestions": {
+    "increase_alignment": true,
+    "increase_intervention_penalty": false,
+    "increase_stability_penalty": false,
+    "scale_rewards": false
+  }
+}

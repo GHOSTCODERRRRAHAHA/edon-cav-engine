@@ -1,0 +1,55 @@
+{
+  "config": {
+    "name": "V4.1_quick",
+    "base_gain": 0.5,
+    "prefall_min": 0.15,
+    "prefall_max": 0.6,
+    "safe_threshold": 0.75,
+    "safe_gain": 0.12
+  },
+  "aggregated": {
+    "total_episodes": 30,
+    "overall": {
+      "interventions": 0.0,
+      "stability": 0.0,
+      "average": 0.0
+    },
+    "per_batch": {
+      "interventions": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "stability": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "average": {
+        "mean": 0.0,
+        "std": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    "raw_metrics": {
+      "baseline_interventions": 0,
+      "edon_interventions": 0,
+      "baseline_stability": 1.0,
+      "edon_stability": 1.0
+    }
+  },
+  "batch_results": [
+    {
+      "interventions": 0.0,
+      "stability": 0.0,
+      "average": 0.0,
+      "baseline_interventions": 0,
+      "edon_interventions": 0,
+      "baseline_stability": 1.0,
+      "edon_stability": 1.0
+    }
+  ]
+}

@@ -88,3 +88,60 @@ class TelemetryResponse(BaseModel):
     avg_latency_ms: float = Field(..., description="Average latency in milliseconds")
     uptime_seconds: float = Field(..., description="Server uptime in seconds")
 
+
+# ============================================================================
+# Robot Stability Models (v8 Integration)
+# ============================================================================
+
+class RobotState(BaseModel):
+    """Robot state input for stability control."""
+    
+    roll: float = Field(..., description="Roll angle (radians)")
+    pitch: float = Field(..., description="Pitch angle (radians)")
+    roll_velocity: float = Field(..., description="Roll angular velocity (rad/s)")
+    pitch_velocity: float = Field(..., description="Pitch angular velocity (rad/s)")
+    com_x: float = Field(0.0, description="Center of mass X position")
+    com_y: float = Field(0.0, description="Center of mass Y position")
+    # Optional additional state
+    com_z: Optional[float] = Field(None, description="Center of mass Z position")
+    yaw: Optional[float] = Field(None, description="Yaw angle (radians)")
+    yaw_velocity: Optional[float] = Field(None, description="Yaw angular velocity (rad/s)")
+
+
+class Modulations(BaseModel):
+    """Control modulations output."""
+    
+    gain_scale: float = Field(..., description="Gain scale multiplier [0.5-2.0]")
+    compliance: float = Field(..., description="Lateral compliance [0.0-1.0]")
+    bias: List[float] = Field(..., description="Step height bias vector (action space size)")
+
+
+class RobotStabilityRequest(BaseModel):
+    """Request model for robot stability control."""
+    
+    robot_state: RobotState = Field(..., description="Current robot state")
+    history: Optional[List[RobotState]] = Field(None, description="Previous robot states (for temporal memory, max 8)")
+    fail_risk: Optional[float] = Field(None, description="Pre-computed fail risk [0.0-1.0] (optional)")
+    baseline_action: Optional[List[float]] = Field(None, description="Baseline controller action (optional, will compute if not provided)")
+
+
+class RobotStabilityResponse(BaseModel):
+    """Response model for robot stability control."""
+    
+    strategy_id: int = Field(..., description="Selected strategy ID [0-3]: 0=NORMAL, 1=HIGH_DAMPING, 2=RECOVERY_BALANCE, 3=COMPLIANT_TERRAIN")
+    strategy_name: str = Field(..., description="Strategy name")
+    modulations: Modulations = Field(..., description="Control modulations")
+    intervention_risk: float = Field(..., description="Predicted intervention risk [0.0-1.0]")
+    latency_ms: Optional[float] = Field(None, description="Processing latency in milliseconds")
+
+
+class RecordOutcomeRequest(BaseModel):
+    """Request model for recording intervention outcome."""
+    
+    strategy_id: int = Field(..., description="Strategy ID used")
+    gain_scale: float = Field(..., description="Gain scale modulation used")
+    lateral_compliance: float = Field(..., description="Lateral compliance modulation used")
+    step_height_bias: float = Field(..., description="Step height bias modulation used")
+    intervention_occurred: bool = Field(..., description="Whether intervention occurred")
+    fail_risk: float = Field(..., description="Intervention risk at time of action")
+    robot_state: Optional[RobotState] = Field(None, description="Robot state at time of action")

@@ -338,7 +338,7 @@ edon_uptime_seconds 3600.00
 
 ## Support
 
-For API questions or issues, contact the EDON team.
+For API questions or issues, contact: **Charlie Biggins** - charlie@edoncore.com
 
 **Contract Version**: v1.0  
 **Last Updated**: 2025-11-20

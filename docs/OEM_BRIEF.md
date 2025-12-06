@@ -15,24 +15,23 @@ EDON CAV Engine is an adaptive physiological state prediction system that proces
 ## Core Technology
 
 ### State Classification
-- **Input**: 6 physiological features from 60-second sensor windows
+- **Input**: Physiological sensor windows (240 samples = 4 seconds)
 - **Output**: State prediction (Balanced/Focus/Restorative) with confidence scores
-- **Model**: LightGBM classifier trained on 100K+ windows
+- **Model**: Machine learning classifier (validated on 100K+ windows)
 - **Accuracy**: Validated with leave-one-subject-out (LOSO) methodology
 
 ### Adaptive Memory Engine
 - **24-hour rolling context** for personalized baselines
-- **Hourly EWMA statistics** (α=0.3) for pattern recognition
-- **Z-score anomaly detection** for adaptive sensitivity
-- **SQLite persistence** with 7-day retention
+- **Adaptive statistics** for pattern recognition
+- **Anomaly detection** for adaptive sensitivity
+- **Persistent storage** with 7-day retention
 
-### Features (v3.2)
-1. `eda_mean` - Electrodermal activity mean
-2. `eda_deriv_std` - EDA derivative standard deviation
-3. `eda_deriv_pos_rate` - EDA positive rate
-4. `bvp_std` - Blood volume pulse standard deviation
-5. `acc_magnitude_mean` - Accelerometer magnitude mean
-6. `acc_var` - Accelerometer variance
+### Input Features
+The system processes 6 key features derived from physiological sensors:
+- Electrodermal activity (EDA) metrics
+- Blood volume pulse (BVP) metrics
+- Accelerometer-derived metrics
+- Environmental context (temperature, humidity, air quality, time)
 
 ---
 

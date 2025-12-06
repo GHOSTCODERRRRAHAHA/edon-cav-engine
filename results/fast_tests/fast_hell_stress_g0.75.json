@@ -1,0 +1,19 @@
+{
+  "profile": "hell_stress",
+  "gain": 0.75,
+  "episodes": 10,
+  "seed": 42,
+  "baseline": {
+    "interventions_per_episode": 41.8,
+    "stability_avg": 0.01838323845942713
+  },
+  "edon": {
+    "interventions_per_episode": 41.7,
+    "stability_avg": 0.018364485671379726
+  },
+  "improvements": {
+    "interventions": 0.23923444976075198,
+    "stability": 0.1020102529203108,
+    "average": 0.1706223513405314
+  }
+}

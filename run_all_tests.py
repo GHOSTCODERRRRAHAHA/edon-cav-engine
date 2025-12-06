@@ -1,223 +1,103 @@
 #!/usr/bin/env python3
-"""Run all integration tests and start services."""
+"""
+Comprehensive evaluation script for EDON controller across multiple scenarios.
+Runs baseline and EDON tests for normal_stress, high_stress, and hell_stress profiles.
+"""
 
-import sys
 import subprocess
-import time
-import signal
+import sys
 import os
 from pathlib import Path
 
-# Add project to path
-sys.path.insert(0, str(Path(__file__).parent))
+# Ensure results directory exists
+results_dir = Path("results")
+results_dir.mkdir(exist_ok=True)
 
-print("=" * 70)
-print("EDON Integration Test Suite")
-print("=" * 70)
+# Test configuration
+STRESS_PROFILES = ["normal_stress", "high_stress", "hell_stress"]
+EDON_GAINS = [0.60, 0.75, 0.90, 1.00]
+EPISODES = 30
 
-# Track background processes
-processes = []
-
-def cleanup():
-    """Clean up background processes."""
-    print("\nCleaning up...")
-    for p in processes:
-        try:
-            p.terminate()
-            p.wait(timeout=5)
-        except:
-            try:
-                p.kill()
-            except:
-                pass
-
-# Register cleanup
-import atexit
-atexit.register(cleanup)
-
-# Test 1: Check REST API
-print("\n[TEST 1] Checking REST API...")
-try:
-    from sdk.python.edon_sdk.client import EdonClient, TransportType
-    client = EdonClient(base_url="http://127.0.0.1:8001", transport=TransportType.REST)
-    health = client.health()
-    if health.get('ok'):
-        print("[OK] REST API is running")
+def run_command(cmd, description):
+    """Run a command and print status."""
+    print(f"\n{'='*70}")
+    print(f"{description}")
+    print(f"{'='*70}")
+    print(f"Command: {' '.join(cmd)}")
+    print()
+    
+    result = subprocess.run(cmd, capture_output=False, text=True)
+    if result.returncode != 0:
+        print(f"\n❌ ERROR: {description} failed with exit code {result.returncode}")
+        return False
     else:
-        print("[WARN] REST API may not be running properly")
-except Exception as e:
-    print(f"[SKIP] REST API not available: {e}")
-    print("       Start with: python -m uvicorn app.main:app --host 127.0.0.1 --port 8001")
+        print(f"\n✅ SUCCESS: {description} completed")
+        return True
 
-# Test 2: Generate protobuf files
-print("\n[TEST 2] Generating protobuf files...")
-try:
-    grpc_dir = Path(__file__).parent / "integrations" / "grpc" / "edon_grpc_service"
-    os.chdir(grpc_dir)
+def main():
+    print("="*70)
+    print("COMPREHENSIVE EDON EVALUATION TEST SUITE")
+    print("="*70)
+    print(f"Profiles: {', '.join(STRESS_PROFILES)}")
+    print(f"EDON Gains: {', '.join(map(str, EDON_GAINS))}")
+    print(f"Episodes per test: {EPISODES}")
+    print("="*70)
     
-    result = subprocess.run(
-        ["python", "-m", "grpc_tools.protoc", "-I.", "--python_out=.", "--grpc_python_out=.", "edon.proto"],
-        capture_output=True,
-        text=True,
-        timeout=10
-    )
+    all_passed = True
     
-    if result.returncode == 0 and (grpc_dir / "edon_pb2.py").exists():
-        print("[OK] Protobuf files generated")
+    # Step 1: Run baseline tests for all profiles
+    print("\n" + "="*70)
+    print("STEP 1: BASELINE TESTS (No EDON)")
+    print("="*70)
+    
+    for profile in STRESS_PROFILES:
+        output_file = f"results/baseline_{profile}_v44.json"
+        cmd = [
+            sys.executable, "run_eval.py",
+            "--mode", "baseline",
+            "--episodes", str(EPISODES),
+            "--profile", profile,
+            "--output", output_file
+        ]
+        if not run_command(cmd, f"Baseline test: {profile}"):
+            all_passed = False
+    
+    # Step 2: Run EDON tests for all profiles and gains
+    print("\n" + "="*70)
+    print("STEP 2: EDON TESTS (Multiple Gains)")
+    print("="*70)
+    
+    for profile in STRESS_PROFILES:
+        for gain in EDON_GAINS:
+            tag = f"{int(gain * 100):03d}"
+            output_file = f"results/edon_{profile}_v44_g{tag}.json"
+            cmd = [
+                sys.executable, "run_eval.py",
+                "--mode", "edon",
+                "--episodes", str(EPISODES),
+                "--profile", profile,
+                "--edon-gain", str(gain),
+                "--edon-controller-version", "v3",
+                "--output", output_file
+            ]
+            if not run_command(cmd, f"EDON test: {profile}, gain={gain}"):
+                all_passed = False
+    
+    # Summary
+    print("\n" + "="*70)
+    print("TEST SUITE COMPLETE")
+    print("="*70)
+    if all_passed:
+        print("✅ All tests completed successfully!")
+        print("\nNext steps:")
+        print("1. Run plot_results.py to visualize comparisons")
+        print("2. Check results/ directory for JSON files")
+        print("3. Compare baseline vs EDON metrics for each profile")
     else:
-        print(f"[FAIL] Protobuf generation failed: {result.stderr}")
-except Exception as e:
-    print(f"[FAIL] Protobuf generation error: {e}")
+        print("❌ Some tests failed. Check output above for details.")
+    print("="*70)
+    
+    return 0 if all_passed else 1
 
-# Test 3: Start gRPC server
-print("\n[TEST 3] Starting gRPC server...")
-try:
-    os.chdir(Path(__file__).parent)
-    grpc_server = subprocess.Popen(
-        [sys.executable, "integrations/grpc/edon_grpc_service/edon_grpc_server.py", "--port", "50051"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
-    processes.append(grpc_server)
-    time.sleep(3)  # Wait for server to start
-    
-    # Check if server is running
-    if grpc_server.poll() is None:
-        print("[OK] gRPC server started (PID: {})".format(grpc_server.pid))
-    else:
-        stdout, stderr = grpc_server.communicate()
-        print(f"[FAIL] gRPC server failed to start")
-        print(f"STDOUT: {stdout[:200]}")
-        print(f"STDERR: {stderr[:200]}")
-except Exception as e:
-    print(f"[FAIL] Failed to start gRPC server: {e}")
-
-# Test 4: Test gRPC client
-print("\n[TEST 4] Testing gRPC client...")
-if (Path(__file__).parent / "integrations" / "grpc" / "edon_grpc_service" / "edon_pb2.py").exists():
-    try:
-        sys.path.insert(0, str(Path(__file__).parent / "integrations" / "grpc" / "edon_grpc_service"))
-        from edon_sdk.client import EdonClient, TransportType
-        
-        client = EdonClient(
-            transport=TransportType.GRPC,
-            grpc_host="localhost",
-            grpc_port=50051
-        )
-        
-        window = {
-            "EDA": [0.1] * 240,
-            "TEMP": [36.5] * 240,
-            "BVP": [0.5] * 240,
-            "ACC_x": [0.0] * 240,
-            "ACC_y": [0.0] * 240,
-            "ACC_z": [1.0] * 240,
-            "temp_c": 22.0,
-            "humidity": 50.0,
-            "aqi": 35,
-            "local_hour": 14,
-        }
-        
-        result = client.cav(window)
-        print(f"[OK] gRPC CAV computation successful")
-        print(f"     State: {result['state']}")
-        print(f"     CAV: {result['cav_smooth']}")
-        print(f"     P-Stress: {result['parts']['p_stress']:.3f}")
-        
-        client.close()
-    except Exception as e:
-        print(f"[FAIL] gRPC client test failed: {e}")
-        import traceback
-        traceback.print_exc()
-else:
-    print("[SKIP] Protobuf files not generated")
-
-# Test 5: Test Python SDK methods
-print("\n[TEST 5] Testing Python SDK methods...")
-try:
-    from sdk.python.edon_sdk.client import EdonClient, TransportType
-    
-    client = EdonClient(base_url="http://127.0.0.1:8001", transport=TransportType.REST)
-    
-    window = {
-        "EDA": [0.1] * 240,
-        "TEMP": [36.5] * 240,
-        "BVP": [0.5] * 240,
-        "ACC_x": [0.0] * 240,
-        "ACC_y": [0.0] * 240,
-        "ACC_z": [1.0] * 240,
-        "temp_c": 22.0,
-        "humidity": 50.0,
-        "aqi": 35,
-        "local_hour": 14,
-    }
-    
-    # Test cav()
-    result = client.cav(window)
-    print(f"[OK] client.cav() works")
-    
-    # Test classify()
-    state = client.classify(window)
-    print(f"[OK] client.classify() works: {state}")
-    
-    # Test cav_batch()
-    results = client.cav_batch([window, window])
-    print(f"[OK] client.cav_batch() works: {len(results)} results")
-    
-except Exception as e:
-    print(f"[FAIL] Python SDK test failed: {e}")
-
-# Test 6: Test engine directly
-print("\n[TEST 6] Testing engine directly...")
-try:
-    from app.engine import CAVEngine
-    
-    engine = CAVEngine()
-    window = {
-        "EDA": [0.1] * 240,
-        "TEMP": [36.5] * 240,
-        "BVP": [0.5] * 240,
-        "ACC_x": [0.0] * 240,
-        "ACC_y": [0.0] * 240,
-        "ACC_z": [1.0] * 240,
-    }
-    
-    cav_raw, cav_smooth, state, parts = engine.cav_from_window(
-        window=window,
-        temp_c=22.0,
-        humidity=50.0,
-        aqi=35,
-        local_hour=14
-    )
-    
-    print(f"[OK] Direct engine computation works")
-    print(f"     State: {state}")
-    print(f"     CAV: {cav_smooth}")
-    print(f"     P-Stress: {parts['p_stress']:.3f}")
-    
-except Exception as e:
-    print(f"[FAIL] Engine test failed: {e}")
-    import traceback
-    traceback.print_exc()
-
-print("\n" + "=" * 70)
-print("Test Summary")
-print("=" * 70)
-print("REST API: Available")
-print("gRPC Server: Running on port 50051")
-print("Python SDK: Functional")
-print("Engine: Working")
-print("\nAll core components are operational!")
-print("=" * 70)
-
-# Keep server running for a bit
-print("\nKeeping gRPC server running for 10 seconds...")
-print("(Press Ctrl+C to stop early)")
-try:
-    time.sleep(10)
-except KeyboardInterrupt:
-    print("\nStopping...")
-
-cleanup()
-
+if __name__ == "__main__":
+    sys.exit(main())

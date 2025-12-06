@@ -2,6 +2,8 @@
 
 Welcome to EDON. This guide shows OEMs and robotics partners how to integrate the EDON CAV Engine into their systems using Docker, REST, gRPC, and the Python / C++ SDKs.
 
+**Contact:** Charlie Biggins - charlie@edoncore.com
+
 ---
 
 ## 1. What EDON does

@@ -1,0 +1,63 @@
+{
+  "version": "V4.1",
+  "profile": "high_stress",
+  "n_seeds": 5,
+  "episodes_per_seed": 30,
+  "edon_gain": 0.75,
+  "configuration": {
+    "EDON_BASE_KP_ROLL": 0.15,
+    "EDON_BASE_KP_PITCH": 0.15,
+    "EDON_BASE_KD_ROLL": 0.04,
+    "EDON_BASE_KD_PITCH": 0.04,
+    "BASE_GAIN": 0.53,
+    "PREFALL_MIN": 0.18,
+    "PREFALL_MAX": 0.65,
+    "RECOVERY_BOOST_FAIL": 1.22,
+    "RECOVERY_BOOST_PREFALL": 1.12
+  },
+  "interventions": {
+    "mean": 0.0,
+    "std": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "values": [
+      0.0,
+      0.0
+    ]
+  },
+  "stability": {
+    "mean": 0.0,
+    "std": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "values": [
+      0.0,
+      0.0
+    ]
+  },
+  "average": {
+    "mean": 0.0,
+    "std": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "values": [
+      0.0,
+      0.0
+    ]
+  },
+  "label": "High stress V4.1: ~0.0% \u00b1 0.0% avg improvement",
+  "individual_results": [
+    {
+      "seed": 1,
+      "interventions": 0.0,
+      "stability": 0.0,
+      "average": 0.0
+    },
+    {
+      "seed": 2,
+      "interventions": 0.0,
+      "stability": 0.0,
+      "average": 0.0
+    }
+  ]
+}

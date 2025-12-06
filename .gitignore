@@ -48,8 +48,24 @@ venv/
 logs/
 tmp/
 
+# --- LOG FILES ---
+*.log
+*.txt.log
+MUJOCO_LOG.TXT
+server_*.log
+
+# --- DATABASE FILES ---
+*.db
+robot_stability_memory.db
+
 # --- OS / EDITOR ---
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
+
+
+
+@"
+data/
+"@ | Add-Content .gitignore

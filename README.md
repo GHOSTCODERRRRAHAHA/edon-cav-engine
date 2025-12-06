@@ -4,6 +4,8 @@
 
 **EDON** is an adaptive state engine for physical AI (humanoids, wearables, and smart environments). It processes physiological sensor data (EDA, temperature, BVP, accelerometer) combined with environmental context to compute **Context-Aware Vectors (CAV)** and predict adaptive states: `restorative`, `balanced`, `focus`, or `overload`.
 
+**Contact:** Charlie Biggins - charlie@edoncore.com
+
 ## Overview
 
 EDON CAV Engine provides:

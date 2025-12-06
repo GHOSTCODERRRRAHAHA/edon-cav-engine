@@ -1,0 +1,222 @@
+{
+  "mode": "reflex_only",
+  "profile": "high_stress",
+  "episodes": [
+    {
+      "episode_id": 0,
+      "interventions": 0,
+      "stability_score": 0.19173941197416974,
+      "episode_length": 330,
+      "avg_fail_risk": 0.501769528244481
+    },
+    {
+      "episode_id": 1,
+      "interventions": 0,
+      "stability_score": 0.3398947813275906,
+      "episode_length": 275,
+      "avg_fail_risk": 0.5018544825640592
+    },
+    {
+      "episode_id": 2,
+      "interventions": 0,
+      "stability_score": 0.37086320603895273,
+      "episode_length": 285,
+      "avg_fail_risk": 0.5017571497381779
+    },
+    {
+      "episode_id": 3,
+      "interventions": 0,
+      "stability_score": 0.23610510148696057,
+      "episode_length": 410,
+      "avg_fail_risk": 0.5018978556481803
+    },
+    {
+      "episode_id": 4,
+      "interventions": 0,
+      "stability_score": 0.26890097187383577,
+      "episode_length": 307,
+      "avg_fail_risk": 0.5020243744896755
+    },
+    {
+      "episode_id": 5,
+      "interventions": 0,
+      "stability_score": 0.3415859842285051,
+      "episode_length": 299,
+      "avg_fail_risk": 0.5020287012974155
+    },
+    {
+      "episode_id": 6,
+      "interventions": 0,
+      "stability_score": 0.3733325042572544,
+      "episode_length": 280,
+      "avg_fail_risk": 0.5033435374498367
+    },
+    {
+      "episode_id": 7,
+      "interventions": 0,
+      "stability_score": 0.14351357578395965,
+      "episode_length": 424,
+      "avg_fail_risk": 0.5018108920106348
+    },
+    {
+      "episode_id": 8,
+      "interventions": 0,
+      "stability_score": 0.2524650633045408,
+      "episode_length": 257,
+      "avg_fail_risk": 0.5017668444822735
+    },
+    {
+      "episode_id": 9,
+      "interventions": 0,
+      "stability_score": 0.1842982083001352,
+      "episode_length": 422,
+      "avg_fail_risk": 0.501792096272464
+    },
+    {
+      "episode_id": 10,
+      "interventions": 0,
+      "stability_score": 0.18761005817032067,
+      "episode_length": 558,
+      "avg_fail_risk": 0.502573019821584
+    },
+    {
+      "episode_id": 11,
+      "interventions": 0,
+      "stability_score": 0.337490999485137,
+      "episode_length": 219,
+      "avg_fail_risk": 0.5017468395842809
+    },
+    {
+      "episode_id": 12,
+      "interventions": 0,
+      "stability_score": 0.28619402856369736,
+      "episode_length": 254,
+      "avg_fail_risk": 0.5021192882004686
+    },
+    {
+      "episode_id": 13,
+      "interventions": 0,
+      "stability_score": 0.22434242338623156,
+      "episode_length": 245,
+      "avg_fail_risk": 0.5017659248137961
+    },
+    {
+      "episode_id": 14,
+      "interventions": 0,
+      "stability_score": 0.19839087495123917,
+      "episode_length": 281,
+      "avg_fail_risk": 0.5021632472815463
+    },
+    {
+      "episode_id": 15,
+      "interventions": 0,
+      "stability_score": 0.3376202317766699,
+      "episode_length": 310,
+      "avg_fail_risk": 0.501897999932689
+    },
+    {
+      "episode_id": 16,
+      "interventions": 0,
+      "stability_score": 0.28217782258044594,
+      "episode_length": 366,
+      "avg_fail_risk": 0.5019146752813475
+    },
+    {
+      "episode_id": 17,
+      "interventions": 0,
+      "stability_score": 0.19055566697447066,
+      "episode_length": 287,
+      "avg_fail_risk": 0.5017167138721054
+    },
+    {
+      "episode_id": 18,
+      "interventions": 0,
+      "stability_score": 0.20206776902196974,
+      "episode_length": 330,
+      "avg_fail_risk": 0.5022404892878098
+    },
+    {
+      "episode_id": 19,
+      "interventions": 0,
+      "stability_score": 0.4097566382978106,
+      "episode_length": 264,
+      "avg_fail_risk": 0.5017573424812519
+    },
+    {
+      "episode_id": 20,
+      "interventions": 0,
+      "stability_score": 0.238345259472837,
+      "episode_length": 279,
+      "avg_fail_risk": 0.5017910343344494
+    },
+    {
+      "episode_id": 21,
+      "interventions": 0,
+      "stability_score": 0.30249297644769096,
+      "episode_length": 343,
+      "avg_fail_risk": 0.5030188058277608
+    },
+    {
+      "episode_id": 22,
+      "interventions": 0,
+      "stability_score": 0.19441526065071887,
+      "episode_length": 327,
+      "avg_fail_risk": 0.5017884958774672
+    },
+    {
+      "episode_id": 23,
+      "interventions": 0,
+      "stability_score": 0.19348902888402467,
+      "episode_length": 297,
+      "avg_fail_risk": 0.5017809420322328
+    },
+    {
+      "episode_id": 24,
+      "interventions": 0,
+      "stability_score": 0.25819422328474556,
+      "episode_length": 316,
+      "avg_fail_risk": 0.502385900744909
+    },
+    {
+      "episode_id": 25,
+      "interventions": 0,
+      "stability_score": 0.23544915858167625,
+      "episode_length": 338,
+      "avg_fail_risk": 0.5023506010425162
+    },
+    {
+      "episode_id": 26,
+      "interventions": 0,
+      "stability_score": 0.290739207160845,
+      "episode_length": 200,
+      "avg_fail_risk": 0.5022898402810096
+    },
+    {
+      "episode_id": 27,
+      "interventions": 0,
+      "stability_score": 0.33517554100472075,
+      "episode_length": 230,
+      "avg_fail_risk": 0.5016875966735508
+    },
+    {
+      "episode_id": 28,
+      "interventions": 0,
+      "stability_score": 0.26046485469768066,
+      "episode_length": 200,
+      "avg_fail_risk": 0.5016604501008988
+    },
+    {
+      "episode_id": 29,
+      "interventions": 0,
+      "stability_score": 0.33914023796710846,
+      "episode_length": 248,
+      "avg_fail_risk": 0.5017506319188303
+    }
+  ],
+  "summary": {
+    "interventions_per_episode": 0.0,
+    "stability_avg": 0.2668937023311982,
+    "avg_episode_length": 306.03333333333336,
+    "avg_fail_risk": 0.5020148433862567
+  }
+}

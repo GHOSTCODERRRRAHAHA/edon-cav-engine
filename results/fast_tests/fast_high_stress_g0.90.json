@@ -1,0 +1,19 @@
+{
+  "profile": "high_stress",
+  "gain": 0.9,
+  "episodes": 5,
+  "seed": 42,
+  "baseline": {
+    "interventions_per_episode": 42.6,
+    "stability_avg": 0.019146613810390352
+  },
+  "edon": {
+    "interventions_per_episode": 42.6,
+    "stability_avg": 0.01912384910190292
+  },
+  "improvements": {
+    "interventions": 0.0,
+    "stability": 0.11889678620393768,
+    "average": 0.05944839310196884
+  }
+}
