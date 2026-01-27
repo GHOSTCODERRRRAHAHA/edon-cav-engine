@@ -193,9 +193,11 @@ app = FastAPI(
 )
 
 # CORS middleware for OEM integration
+# When allow_credentials=True, cannot use wildcard "*" - must specify origins
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000,https://edoncore.com").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
+    allow_origins=[origin.strip() for origin in cors_origins if origin.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -213,6 +215,16 @@ from app.routes import debug_state
 app.include_router(debug_state.router)
 app.include_router(models_router, prefix="/models", tags=["models"])
 
+# v1 control-layer API routes
+try:
+    from app.routes import v1_control, v1_audit, v1_replay
+    app.include_router(v1_control.router)
+    app.include_router(v1_audit.router)
+    app.include_router(v1_replay.router)
+    logger.info("[EDON] v1 control-layer API routes included")
+except ImportError as e:
+    logger.warning(f"[EDON] v1 control-layer API routes not available: {e}")
+
 # Robot stability route (v8 integration)
 try:
     from app.routes import robot_stability
@@ -221,6 +233,15 @@ try:
 except ImportError as e:
     logger.warning(f"[EDON] Robot stability route not available: {e}")
     robot_stability = None
+
+# AGI safety route
+try:
+    from app.routes import agi_safety
+    app.include_router(agi_safety.router)
+    logger.info("[EDON] AGI safety route included")
+except ImportError as e:
+    logger.warning(f"[EDON] AGI safety route not available: {e}")
+    agi_safety = None
 
 # v2 routes (multimodal - only if v2 mode)
 if EDON_MODE == "v2":
@@ -439,6 +460,29 @@ async def health():
                 health_data["v8_robot_stability"] = {"available": False}
         
         return health_data
+
+
+# Account endpoints (placeholder - full implementation requires gateway)
+@app.get("/account/api-keys")
+async def account_list_api_keys():
+    """List all API keys for the authenticated tenant (placeholder)."""
+    # TODO: Integrate with gateway authentication and database
+    return {
+        "keys": [],
+        "total": 0,
+        "message": "Account endpoints require gateway integration"
+    }
+
+
+@app.get("/account/integrations")
+async def get_integrations():
+    """Get integration details for the authenticated tenant (placeholder)."""
+    # TODO: Integrate with gateway authentication and database
+    return {
+        "endpoint": "",
+        "instructions": "Account endpoints require gateway integration",
+        "clawdbot_configured": False
+    }
 
 
 if __name__ == "__main__":
