@@ -17,7 +17,7 @@ EDON operates as a Software-as-a-Service (SaaS) platform, providing robot contro
    - Optionally provides company name and use case
 
 2. **Pays via Stripe**
-   - Selects subscription plan (Starter, Pro, Enterprise)
+   - Selects subscription plan (Pro, Pro+, Ultra)
    - Completes payment through Stripe Checkout
    - Receives email confirmation
 
@@ -163,6 +163,32 @@ Token: edon_7f8e9d0c1b2a3f4e5d6c7b8a9f0e1d2c
 ---
 
 ## Technical Implementation
+
+## Plans (Current)
+
+**Pro — $25/month**  
+For solo builders, early teams, experimentation  
+✅ AI agent governance (single project)  
+✅ Policy-based allow/block decisions  
+✅ Basic audit log (last 7 days)  
+✅ Manual escalation to human  
+✅ Single runtime / gateway  
+
+**Pro+ — $60/month (Most Popular)**  
+For teams running real agents in production  
+✅ Everything in Pro  
+✅ Multiple agents & integrations  
+✅ Full decision audit trail (30–90 days)  
+✅ 24/7 autonomous mode governance  
+✅ Confidence scoring + decision reasoning  
+
+**Ultra — Contact Sales**  
+For companies where failure = real damage  
+✅ Everything in Pro+  
+✅ Unlimited agents & runtimes  
+✅ Long-term audit retention (1+ year)  
+✅ Custom policy packs (per use case)  
+✅ Specialized governance for critical operations  
 
 ### Tenant Provisioning
 
