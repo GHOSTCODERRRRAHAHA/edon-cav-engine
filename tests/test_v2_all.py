@@ -16,6 +16,7 @@ import asyncio
 import subprocess
 import signal
 from typing import Optional
+import pytest
 
 try:
     import websockets
@@ -63,8 +64,7 @@ def test_v2_rest_batch():
     print("=" * 70)
     
     if not SDK_AVAILABLE:
-        print("  ⚠ SKIP: SDK not available")
-        return False
+        pytest.skip("SDK not available")
     
     try:
         import requests
@@ -89,16 +89,15 @@ def test_v2_rest_batch():
         print(f"  ✓ p_chaos: {result['p_chaos']:.3f}")
         print(f"  ✓ Latency: {data.get('latency_ms', 0):.2f}ms")
         
-        return True
+        return None
         
     except requests.exceptions.ConnectionError:
-        print("  ⚠ SKIP: REST server not running on port 8002")
-        return None
+        pytest.skip("REST server not running on port 8002")
     except Exception as e:
         print(f"  ✗ Error: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"REST v2 batch error: {e}"
 
 
 def test_v2_grpc_batch():
@@ -108,8 +107,7 @@ def test_v2_grpc_batch():
     print("=" * 70)
     
     if not SDK_AVAILABLE:
-        print("  ⚠ SKIP: SDK not available")
-        return False
+        pytest.skip("SDK not available")
     
     try:
         client = EdonClient(
@@ -124,8 +122,7 @@ def test_v2_grpc_batch():
         print(f"  Health: {health.get('mode', 'unknown')} mode")
         
         if not health.get("ok"):
-            print("  ⚠ SKIP: gRPC server not healthy")
-            return None
+            pytest.skip("gRPC server not healthy")
         
         # Test batch
         window = create_test_window()
@@ -144,17 +141,16 @@ def test_v2_grpc_batch():
         print(f"  ✓ p_chaos: {result['p_chaos']:.3f}")
         print(f"  ✓ Latency: {response.get('latency_ms', 0):.2f}ms")
         
-        return True
+        return None
         
     except Exception as e:
         error_str = str(e)
         if "Connection refused" in error_str or "Failed to connect" in error_str:
-            print("  ⚠ SKIP: gRPC server not running on port 50052")
-            return None
+            pytest.skip("gRPC server not running on port 50052")
         print(f"  ✗ Error: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"gRPC v2 batch error: {e}"
 
 
 def test_v2_rest_vs_grpc():
@@ -164,8 +160,7 @@ def test_v2_rest_vs_grpc():
     print("=" * 70)
     
     if not SDK_AVAILABLE:
-        print("  ⚠ SKIP: SDK not available")
-        return False
+        pytest.skip("SDK not available")
     
     try:
         import requests
@@ -180,8 +175,7 @@ def test_v2_rest_vs_grpc():
             rest_data = rest_response.json()
             rest_result = rest_data["results"][0]
         except requests.exceptions.ConnectionError:
-            print("  ⚠ SKIP: REST server not running")
-            return None
+            pytest.skip("REST server not running")
         
         # gRPC
         try:
@@ -195,8 +189,7 @@ def test_v2_rest_vs_grpc():
             grpc_result = grpc_response["results"][0]
         except Exception as e:
             if "Connection refused" in str(e) or "Failed to connect" in str(e):
-                print("  ⚠ SKIP: gRPC server not running")
-                return None
+                pytest.skip("gRPC server not running")
             raise
         
         # Compare
@@ -213,15 +206,16 @@ def test_v2_rest_vs_grpc():
         print(f"  ✓ p_stress matches: {rest_result['p_stress']:.3f}")
         print(f"  ✓ p_chaos matches: {rest_result['p_chaos']:.3f}")
         
-        return True
+        return None
         
     except Exception as e:
         print(f"  ✗ Error: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"REST vs gRPC error: {e}"
 
 
+@pytest.mark.asyncio
 async def test_v2_websocket_stream():
     """Test v2 WebSocket streaming."""
     print("\n" + "=" * 70)
@@ -229,8 +223,7 @@ async def test_v2_websocket_stream():
     print("=" * 70)
     
     if not WEBSOCKETS_AVAILABLE:
-        print("  ⚠ SKIP: websockets library not installed")
-        return False
+        pytest.skip("websockets library not installed")
     
     try:
         uri = "ws://127.0.0.1:8002/v2/stream/cav"
@@ -251,26 +244,23 @@ async def test_v2_websocket_stream():
                     print(f"  ✓ Window {i+1}: State={result['state_class']}, Stress={result['p_stress']:.3f}")
                 else:
                     print(f"  ✗ Window {i+1} error: {result.get('error')}")
-                    return False
+                    assert False, f"Window {i+1} error: {result.get('error')}"
                 
                 await asyncio.sleep(0.1)
             
-            return True
+            return None
             
     except websockets.exceptions.InvalidStatusCode as e:
         if e.status_code == 404:
-            print("  ⚠ SKIP: WebSocket endpoint not available (server not in v2 mode?)")
-            return None
-        print(f"  ✗ Connection error: {e}")
-        return False
+            pytest.skip("WebSocket endpoint not available (server not in v2 mode?)")
+        assert False, f"WebSocket connection error: {e}"
     except (ConnectionRefusedError, OSError) as e:
-        print("  ⚠ SKIP: REST server not running on port 8002")
-        return None
+        pytest.skip("REST server not running on port 8002")
     except Exception as e:
         print(f"  ✗ Error: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"WebSocket error: {e}"
 
 
 def test_v2_grpc_streaming():
@@ -280,8 +270,7 @@ def test_v2_grpc_streaming():
     print("=" * 70)
     
     if not SDK_AVAILABLE:
-        print("  ⚠ SKIP: SDK not available")
-        return False
+        pytest.skip("SDK not available")
     
     try:
         client = EdonClient(
@@ -306,22 +295,21 @@ def test_v2_grpc_streaming():
                 print(f"  ✓ State: {result['state_class']}, Stress: {result['p_stress']:.3f}")
             else:
                 print(f"  ✗ Error: {result.get('error')}")
-                return False
+                assert False, f"Streaming error: {result.get('error')}"
         
         assert len(results) == len(windows), f"Expected {len(windows)} results, got {len(results)}"
         print(f"  ✓ Processed {len(results)} windows")
         
-        return True
+        return None
         
     except Exception as e:
         error_str = str(e)
         if "Connection refused" in error_str or "Failed to connect" in error_str:
-            print("  ⚠ SKIP: gRPC server not running on port 50052")
-            return None
+            pytest.skip("gRPC server not running on port 50052")
         print(f"  ✗ Error: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"gRPC streaming error: {e}"
 
 
 def main():

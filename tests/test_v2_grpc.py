@@ -12,6 +12,7 @@ import time
 import math
 import random
 from edon import EdonClient, TransportType
+import pytest
 
 
 def create_test_window():
@@ -74,13 +75,10 @@ def test_v2_grpc_batch():
         print(f"  ✓ p_stress: {result['p_stress']:.3f}")
         print(f"  ✓ p_chaos: {result['p_chaos']:.3f}")
         
-        return True
+        return None
         
     except Exception as e:
-        print(f"  ✗ Error: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+        assert False, f"v2 gRPC batch error: {e}"
 
 
 def test_v2_rest_vs_grpc():
@@ -120,13 +118,10 @@ def test_v2_rest_vs_grpc():
         print(f"  ✓ p_stress matches: {rest_result['p_stress']:.3f}")
         print(f"  ✓ p_chaos matches: {rest_result['p_chaos']:.3f}")
         
-        return True
+        return None
         
     except Exception as e:
-        print(f"  ✗ Error: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+        assert False, f"REST vs gRPC error: {e}"
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ project_root = Path(__file__).resolve().parent
 sys.path.insert(0, str(project_root))
 
 import requests
+import pytest
 
 # Try to import SDK
 try:
@@ -74,8 +75,7 @@ def test_rest():
         print(f"   PCA Loaded: {health.get('pca_loaded')}")
         
         if health.get('mode') != 'v2':
-            print("   [ERROR] Server not in v2 mode!")
-            return False
+            pytest.skip("Server not in v2 mode")
         
         # Batch request
         print("\n1.2 Batch Request...")
@@ -98,22 +98,15 @@ def test_rest():
         print(f"   CAV Vector: {len(res['cav_vector'])} dimensions")
         print(f"   Latency: {latency:.2f} ms")
         
-        return {
-            "ok": True,
-            "state": res['state_class'],
-            "stress": res['p_stress'],
-            "chaos": res['p_chaos'],
-            "latency": latency
-        }
+        assert res["state_class"] is not None
         
     except requests.exceptions.ConnectionError:
-        print("   [SKIP] REST server not running")
-        return None
+        pytest.skip("REST server not running")
     except Exception as e:
         print(f"   [ERROR] {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"REST test failed: {e}"
 
 
 def test_grpc():
@@ -123,8 +116,7 @@ def test_grpc():
     print("=" * 70)
     
     if not SDK_AVAILABLE:
-        print("\n[SKIP] SDK not available")
-        return None
+        pytest.skip("SDK not available")
     
     try:
         # Create client
@@ -140,9 +132,7 @@ def test_grpc():
         # Health check
         print("\n2.2 Health Check...")
         health = client.health()
-        if not health.get("ok"):
-            print(f"   [ERROR] Health check failed: {health.get('error')}")
-            return False
+        assert health.get("ok"), f"Health check failed: {health.get('error')}"
         
         print(f"   Mode: {health.get('mode')}")
         print(f"   Engine: {health.get('engine')}")
@@ -157,9 +147,7 @@ def test_grpc():
         latency = (time.time() - start_time) * 1000
         
         result = response["results"][0]
-        if not result["ok"]:
-            print(f"   [ERROR] {result.get('error')}")
-            return False
+        assert result["ok"], f"{result.get('error')}"
         
         print(f"   [OK] Success!")
         print(f"   State: {result['state_class']}")
@@ -168,23 +156,16 @@ def test_grpc():
         print(f"   CAV Vector: {len(result['cav_vector'])} dimensions")
         print(f"   Latency: {latency:.2f} ms")
         
-        return {
-            "ok": True,
-            "state": result['state_class'],
-            "stress": result['p_stress'],
-            "chaos": result['p_chaos'],
-            "latency": latency
-        }
+        assert result["state_class"] is not None
         
     except Exception as e:
         error_str = str(e)
         if "Connection refused" in error_str or "Failed to connect" in error_str:
-            print(f"   [SKIP] gRPC server not running on port {GRPC_PORT}")
-            return None
+            pytest.skip(f"gRPC server not running on port {GRPC_PORT}")
         print(f"   [ERROR] {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"gRPC test failed: {e}"
 
 
 def test_grpc_streaming():
@@ -194,8 +175,7 @@ def test_grpc_streaming():
     print("=" * 70)
     
     if not SDK_AVAILABLE:
-        print("\n[SKIP] SDK not available")
-        return None
+        pytest.skip("SDK not available")
     
     try:
         print("\n3.1 Creating gRPC client...")
@@ -218,9 +198,7 @@ def test_grpc_streaming():
         results = list(client.stream_v2_grpc(windows))
         total_latency = (time.time() - start_time) * 1000
         
-        if len(results) != len(windows):
-            print(f"   [ERROR] Expected {len(windows)} results, got {len(results)}")
-            return False
+        assert len(results) == len(windows), f"Expected {len(windows)} results, got {len(results)}"
         
         print(f"   [OK] Processed {len(results)} windows in {total_latency:.2f} ms")
         for i, result in enumerate(results):
@@ -228,22 +206,21 @@ def test_grpc_streaming():
                 print(f"   Window {i+1}: State={result['state_class']}, "
                       f"Stress={result['p_stress']:.3f}, Chaos={result['p_chaos']:.3f}")
             else:
-                print(f"   Window {i+1}: [ERROR] {result.get('error')}")
-                return False
+                assert False, f"Window {i+1} error: {result.get('error')}"
         
-        return True
+        assert True
         
     except Exception as e:
         error_str = str(e)
         if "Connection refused" in error_str or "Failed to connect" in error_str:
-            print(f"   [SKIP] gRPC server not running on port {GRPC_PORT}")
-            return None
+            pytest.skip(f"gRPC server not running on port {GRPC_PORT}")
         print(f"   [ERROR] {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"gRPC streaming failed: {e}"
 
 
+@pytest.mark.asyncio
 async def test_websocket():
     """Test WebSocket streaming."""
     print("\n" + "=" * 70)
@@ -251,8 +228,7 @@ async def test_websocket():
     print("=" * 70)
     
     if not WEBSOCKETS_AVAILABLE:
-        print("\n[SKIP] websockets library not installed")
-        return None
+        pytest.skip("websockets library not installed")
     
     try:
         uri = f"ws://127.0.0.1:8001/v2/stream/cav"
@@ -279,35 +255,29 @@ async def test_websocket():
                     print(f"   Window {i+1}: State={result['state_class']}, "
                           f"Stress={result['p_stress']:.3f}, Chaos={result['p_chaos']:.3f}")
                 else:
-                    print(f"   Window {i+1}: [ERROR] {result.get('error')}")
-                    return False
+                    assert False, f"Window {i+1} error: {result.get('error')}"
             
             total_latency = (time.time() - start_time) * 1000
             print(f"   [OK] Processed 3 windows in {total_latency:.2f} ms")
-            return True
+            assert True
             
     except Exception as e:
         error_str = str(e)
         if "404" in error_str or "Not Found" in error_str:
-            print("   [SKIP] WebSocket endpoint not available (server not in v2 mode?)")
-            return None
+            pytest.skip("WebSocket endpoint not available (server not in v2 mode?)")
         if "Connection refused" in error_str or "Failed to connect" in error_str:
-            print(f"   [SKIP] REST server not running on port 8001")
-            return None
+            pytest.skip("REST server not running on port 8001")
         # Check for InvalidStatusCode in a different way
         if hasattr(e, 'status_code') and e.status_code == 404:
-            print("   [SKIP] WebSocket endpoint not available (server not in v2 mode?)")
-            return None
-        print(f"   [ERROR] Connection error: {e}")
-        return False
+            pytest.skip("WebSocket endpoint not available (server not in v2 mode?)")
+        assert False, f"WebSocket error: {e}"
     except (ConnectionRefusedError, OSError) as e:
-        print(f"   [SKIP] REST server not running on port 8001")
-        return None
+        pytest.skip("REST server not running on port 8001")
     except Exception as e:
         print(f"   [ERROR] {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"WebSocket error: {e}"
 
 
 def compare_rest_vs_grpc(rest_result, grpc_result):

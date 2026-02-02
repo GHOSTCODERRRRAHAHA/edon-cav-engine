@@ -4,6 +4,7 @@ import asyncio
 import json
 import websockets
 import sys
+import pytest
 from pathlib import Path
 
 # Add project root to path
@@ -38,6 +39,7 @@ def create_test_window():
     }
 
 
+@pytest.mark.asyncio
 async def test_stream():
     """Test WebSocket streaming."""
     uri = "ws://127.0.0.1:8002/v2/stream/cav"
@@ -70,13 +72,11 @@ async def test_stream():
                 await asyncio.sleep(0.5)
             
             print("\n✓ Streaming test completed")
-            return True
             
+    except (ConnectionRefusedError, OSError) as e:
+        pytest.skip(f"WebSocket server not running: {e}")
     except Exception as e:
-        print(f"✗ Error: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+        assert False, f"WebSocket stream error: {e}"
 
 
 if __name__ == "__main__":

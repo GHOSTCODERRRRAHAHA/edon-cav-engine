@@ -47,7 +47,6 @@ def test_device_profiles():
     assert 'vision' not in available
     print(f"   [OK] Wearable modalities: {available}")
     
-    return True
 
 
 def test_schemas():
@@ -89,7 +88,6 @@ def test_schemas():
     except ValueError:
         print(f"   [OK] Empty request correctly rejected")
     
-    return True
 
 
 def test_multimodal_fusion():
@@ -122,7 +120,6 @@ def test_multimodal_fusion():
     print(f"   [OK] Features extracted: {len(features)} features")
     print(f"   [OK] Modalities: {fused['modalities_present']}")
     
-    return True
 
 
 def test_pca_fusion():
@@ -152,7 +149,6 @@ def test_pca_fusion():
     print(f"   [OK] Embedding shape: {embedding.shape}")
     print(f"   [OK] Embedding norm: {norm:.4f}")
     
-    return True
 
 
 def test_neural_head():
@@ -186,7 +182,6 @@ def test_neural_head():
     print(f"   [OK] Confidence: {prediction['confidence']:.3f}")
     print(f"   [OK] Speed scale: {actions['speed_scale']:.2f}")
     
-    return True
 
 
 def test_engine_v2():
@@ -230,7 +225,6 @@ def test_engine_v2():
     assert result2['state_class'] in ['restorative', 'focus', 'balanced', 'overload', 'alert', 'emergency']
     print(f"   [OK] Engine with device profile successful")
     
-    return True
 
 
 def main():

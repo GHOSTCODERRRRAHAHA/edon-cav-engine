@@ -137,8 +137,7 @@ def test_modulation_application():
             
             # Check for issues
             if np.any(np.isnan(corrected_action)) or np.any(np.isinf(corrected_action)):
-                print(f"   ❌ ERROR: NaN/Inf in action at step {step}!")
-                return False
+                assert False, f"NaN/Inf in action at step {step}"
             
             if np.any(np.abs(corrected_action) > 25.0):  # Slightly above 20.0 is ok, but 25+ is suspicious
                 print(f"   ⚠️  WARNING: Large action magnitude at step {step}: max={np.max(np.abs(corrected_action)):.2f}")
@@ -209,8 +208,6 @@ def test_modulation_application():
     print("CONCLUSION: Modulations work correctly!")
     print("="*70)
     print("\nYou can safely add them to the training script.")
-    
-    return True
 
 
 if __name__ == "__main__":

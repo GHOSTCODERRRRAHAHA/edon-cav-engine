@@ -7,6 +7,7 @@ import time
 import os
 import numpy as np
 from typing import Dict, Any
+import pytest
 
 API_URL = os.getenv("EDON_API_URL", "http://127.0.0.1:8002")
 
@@ -106,8 +107,7 @@ def test_v2_endpoint():
         else:
             print(f"   [WARN] v2 endpoint not in root response")
     except Exception as e:
-        print(f"   [FAIL] Health check failed: {e}")
-        return False
+        pytest.skip(f"Health check failed: {e}")
     
     # Test 2: Basic v2 request (no device profile)
     print("\n[Test 2] Basic v2 Request (All Modalities)")
@@ -152,10 +152,7 @@ def test_v2_endpoint():
             print(f"   [OK] Modalities: {meta.get('modalities_present', [])}")
             print(f"   [OK] PCA Fitted: {meta.get('pca_fitted', False)}")
     except Exception as e:
-        print(f"   [FAIL] Basic request failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+        assert False, f"Basic request failed: {e}"
     
     # Test 3: Device Profile - humanoid_full
     print("\n[Test 3] Device Profile: humanoid_full")
@@ -180,7 +177,7 @@ def test_v2_endpoint():
         print(f"   [OK] CAV Vector: {len(result['cav_vector'])}-dim")
     except Exception as e:
         print(f"   [FAIL] humanoid_full test failed: {e}")
-        return False
+        assert False
     
     # Test 4: Device Profile - wearable_limited
     print("\n[Test 4] Device Profile: wearable_limited")
@@ -203,7 +200,7 @@ def test_v2_endpoint():
         print(f"   [OK] CAV Vector: {len(result['cav_vector'])}-dim")
     except Exception as e:
         print(f"   [FAIL] wearable_limited test failed: {e}")
-        return False
+        assert False
     
     # Test 5: Device Profile - drone_nav
     print("\n[Test 5] Device Profile: drone_nav")
@@ -226,7 +223,7 @@ def test_v2_endpoint():
         print(f"   [OK] CAV Vector: {len(result['cav_vector'])}-dim")
     except Exception as e:
         print(f"   [FAIL] drone_nav test failed: {e}")
-        return False
+        assert False
     
     # Test 6: Batch request (multiple windows)
     print("\n[Test 6] Batch Request (3 windows)")
@@ -263,7 +260,7 @@ def test_v2_endpoint():
         print(f"   [FAIL] Batch test failed: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False
     
     # Test 7: Minimal request (only env)
     print("\n[Test 7] Minimal Request (env only)")
@@ -296,12 +293,12 @@ def test_v2_endpoint():
         print(f"   [FAIL] Minimal request failed: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False
     
     print("\n" + "=" * 70)
     print("All v2 tests passed! [SUCCESS]")
     print("=" * 70)
-    return True
+    return None
 
 
 if __name__ == "__main__":

@@ -1,0 +1,325 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          elif [ -f pyproject.toml ]; then
+            pip install -e .
+          else
+            echo "No requirements.txt or pyproject.toml found"
+            exit 1
+          fi
+          pip install pytest pytest-cov
+
+      - name: Run tests
+        run: |
+          pytest -v --cov=edon_gateway --cov-report=xml
+        env:
+          EDON_API_TOKEN: test-token
+          EDON_CREDENTIALS_STRICT: "false"
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install linting tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black isort mypy
+
+      - name: Run flake8 (errors only)
+        run: |
+          flake8 edon_gateway/edon_gateway/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Run flake8 (report)
+        run: |
+          flake8 edon_gateway/edon_gateway/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Check formatting with black
+        run: |
+          black --check edon_gateway/edon_gateway/
+
+      - name: Check imports with isort
+        run: |
+          isort --check-only edon_gateway/edon_gateway/
+
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # Gateway regression: start uvicorn + run test_regression.py
+  # FastAPI app: edon_gateway/edon_gateway/main.py -> edon_gateway.main:app
+  gateway-regression:
+    runs-on: ubuntu-latest
+
+    env:
+      EDON_AUTH_ENABLED: "true"
+      EDON_API_TOKEN: "test-token"
+      EDON_CREDENTIALS_STRICT: "false"
+      EDON_DB_URL: "sqlite:///./ci_edon.db"
+      EDON_GATEWAY_URL: "http://127.0.0.1:8000"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          elif [ -f pyproject.toml ]; then
+            pip install -e .
+          else
+            echo "No requirements.txt or pyproject.toml found"
+            exit 1
+          fi
+
+      # Fail fast: import uses same job-level env as server (EDON_AUTH_ENABLED, EDON_API_TOKEN, etc.)
+      - name: Sanity import (fail fast)
+        run: PYTHONPATH=edon_gateway python -c "import edon_gateway.main"
+
+      - name: Start uvicorn (background)
+        run: |
+          PYTHONPATH=edon_gateway uvicorn edon_gateway.main:app --host 127.0.0.1 --port 8000 > uvicorn.log 2>&1 &
+          echo $! > uvicorn.pid
+
+      - name: Wait for server ready
+        run: |
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/ || true)
+            if [ "$code" != "000" ]; then
+              echo "Server responding with HTTP $code after $i attempts"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Timeout waiting for server"
+          echo "=== Last 200 lines of uvicorn.log ==="
+          tail -200 uvicorn.log || true
+          exit 1
+
+      - name: Run regression tests
+        run: |
+          python test_regression.py
+
+      - name: Stop uvicorn
+        if: always()
+        run: |
+          if [ -f uvicorn.pid ]; then
+            kill $(cat uvicorn.pid) || true
+          fi
+
+  mag-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install MAG dependencies
+        working-directory: edon-mag
+        run: npm ci
+
+      - name: Build MAG
+        working-directory: edon-mag
+        run: npm run build
+
+      - name: Start MAG (background)
+        working-directory: edon-mag
+        run: |
+          PORT=8002 ENABLE_ORCHESTRATION=true node dist/index.js > mag.log 2>&1 &
+          echo $! > mag.pid
+
+      - name: Wait for MAG ready
+        run: |
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health || true)
+            if [ "$code" = "200" ]; then
+              echo "MAG responding with HTTP 200 after $i attempts"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Timeout waiting for MAG"
+          echo "=== Last 200 lines of mag.log ==="
+          tail -200 edon-mag/mag.log || true
+          exit 1
+
+      - name: Install integration test dependencies
+        working-directory: tests
+        run: npm ci
+
+      - name: Run MAG integration + E2E tests
+        working-directory: tests
+        run: MAG_INTEGRATION_TESTS=true MAG_URL=http://127.0.0.1:8002 npm test
+
+      - name: Stop MAG
+        if: always()
+        working-directory: edon-mag
+        run: |
+          if [ -f mag.pid ]; then
+            kill $(cat mag.pid) || true
+          fi
+
+  full-pytest:
+    runs-on: ubuntu-latest
+
+    env:
+      EDON_FULL_TESTS: "true"
+      EDON_LONG_TESTS: "true"
+      EDON_MODE: "v2"
+      EDON_AUTH_ENABLED: "false"
+      EDON_API_TOKEN: "test-token"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          elif [ -f pyproject.toml ]; then
+            pip install -e .
+          else
+            echo "No requirements.txt or pyproject.toml found"
+            exit 1
+          fi
+          pip install pytest pytest-cov
+
+      - name: Start gateway (background)
+        run: |
+          PYTHONPATH=edon_gateway uvicorn edon_gateway.main:app --host 127.0.0.1 --port 8000 > gateway.log 2>&1 &
+          echo $! > gateway.pid
+
+      - name: Start core v2 servers (background)
+        run: |
+          EDON_MODE=v2 uvicorn app.main:app --host 127.0.0.1 --port 8001 > core-8001.log 2>&1 &
+          echo $! > core-8001.pid
+          EDON_MODE=v2 uvicorn app.main:app --host 127.0.0.1 --port 8002 > core-8002.log 2>&1 &
+          echo $! > core-8002.pid
+
+      - name: Start gRPC v2 server (background)
+        run: |
+          python -m integrations.grpc.edon_v2_service.server --port 50052 > grpc.log 2>&1 &
+          echo $! > grpc.pid
+
+      - name: Wait for services ready
+        run: |
+          for i in $(seq 1 60); do
+            gcode=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/health || true)
+            c1=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001/health || true)
+            c2=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/health || true)
+            if [ "$gcode" = "200" ] && [ "$c1" = "200" ] && [ "$c2" = "200" ]; then
+              echo "Services responding"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Timeout waiting for services"
+          echo "=== gateway.log ==="
+          tail -200 gateway.log || true
+          echo "=== core-8001.log ==="
+          tail -200 core-8001.log || true
+          echo "=== core-8002.log ==="
+          tail -200 core-8002.log || true
+          echo "=== grpc.log ==="
+          tail -200 grpc.log || true
+          exit 1
+
+      - name: Run full pytest gates
+        run: |
+          python -m pytest
+
+      - name: Stop services
+        if: always()
+        run: |
+          if [ -f gateway.pid ]; then kill $(cat gateway.pid) || true; fi
+          if [ -f core-8001.pid ]; then kill $(cat core-8001.pid) || true; fi
+          if [ -f core-8002.pid ]; then kill $(cat core-8002.pid) || true; fi
+          if [ -f grpc.pid ]; then kill $(cat grpc.pid) || true; fi
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, lint, mag-tests, full-pytest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: edon-gateway:test
+          cache-from: type=registry,ref=edon-gateway:cache
+          cache-to: type=inline

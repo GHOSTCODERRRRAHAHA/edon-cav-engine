@@ -4,6 +4,7 @@ import requests
 import json
 import math
 import random
+import pytest
 
 # Server URL
 url = "http://127.0.0.1:8002/v2/oem/cav/batch"
@@ -111,9 +112,9 @@ def create_emergency_demo():
     }
 
 
-def test_window(name, window, expected_state=None, min_stress=None, max_stress=None, 
-                min_chaos=None, max_chaos=None):
-    """Test a single window and verify results."""
+def run_window(name, window, expected_state=None, min_stress=None, max_stress=None,
+               min_chaos=None, max_chaos=None):
+    """Run a single window and verify results."""
     print(f"\n{'='*70}")
     print(f"Testing: {name}")
     print(f"{'='*70}")
@@ -126,9 +127,7 @@ def test_window(name, window, expected_state=None, min_stress=None, max_stress=N
         if "results" in result and len(result["results"]) > 0:
             item = result["results"][0]
             
-            if not item.get("ok", False):
-                print(f"[FAIL] Request failed: {item.get('error', 'Unknown error')}")
-                return False
+            assert item.get("ok", False), f"Request failed: {item.get('error', 'Unknown error')}"
             
             state = item.get("state_class")
             p_stress = item.get("p_stress")
@@ -150,41 +149,50 @@ def test_window(name, window, expected_state=None, min_stress=None, max_stress=N
             print(f"  pca_fitted: {metadata.get('pca_fitted', False)}")
             
             # Verify expectations
-            passed = True
             if expected_state and state != expected_state:
-                print(f"[FAIL] Expected state '{expected_state}', got '{state}'")
-                passed = False
+                assert False, f"Expected state '{expected_state}', got '{state}'"
             if min_stress is not None and p_stress < min_stress:
-                print(f"[FAIL] p_stress {p_stress:.3f} < {min_stress}")
-                passed = False
+                assert False, f"p_stress {p_stress:.3f} < {min_stress}"
             if max_stress is not None and p_stress > max_stress:
-                print(f"[FAIL] p_stress {p_stress:.3f} > {max_stress}")
-                passed = False
+                assert False, f"p_stress {p_stress:.3f} > {max_stress}"
             if min_chaos is not None and p_chaos < min_chaos:
-                print(f"[FAIL] p_chaos {p_chaos:.3f} < {min_chaos}")
-                passed = False
+                assert False, f"p_chaos {p_chaos:.3f} < {min_chaos}"
             if max_chaos is not None and p_chaos > max_chaos:
-                print(f"[FAIL] p_chaos {p_chaos:.3f} > {max_chaos}")
-                passed = False
+                assert False, f"p_chaos {p_chaos:.3f} > {max_chaos}"
             
-            if passed:
-                print(f"[PASS] All checks passed")
-            
-            return passed
+            print(f"[PASS] All checks passed")
         else:
             print("Unexpected response format:")
             print(json.dumps(result, indent=2))
-            return False
+            assert False, "Unexpected response format"
             
     except requests.exceptions.ConnectionError:
-        print(f"[ERROR] Could not connect to {url}")
-        print("Make sure the server is running with:")
-        print("  $env:EDON_MODE='v2'")
-        print("  python -m uvicorn app.main:app --port 8002")
-        return False
+        pytest.skip("Could not connect to v2 server on port 8002")
     except Exception as e:
-        print(f"[ERROR] {e}")
-        return False
+        assert False, f"Demo state error: {e}"
+
+
+@pytest.mark.parametrize(
+    "name,window,expected_state,min_stress,max_stress,min_chaos,max_chaos",
+    [
+        ("Restorative Demo", create_restorative_demo(), "restorative", None, 0.20, None, 0.15),
+        ("Focus Demo", create_focus_demo(), "focus", 0.20, 0.45, None, 0.20),
+        ("Balanced Demo", create_balanced_demo(), "balanced", None, 0.70, None, 0.40),
+        ("Emergency Demo", create_emergency_demo(), "emergency", 0.90, None, 0.75, None),
+    ],
+)
+def test_v2_demo_state(
+    name, window, expected_state, min_stress, max_stress, min_chaos, max_chaos
+):
+    run_window(
+        name,
+        window,
+        expected_state=expected_state,
+        min_stress=min_stress,
+        max_stress=max_stress,
+        min_chaos=min_chaos,
+        max_chaos=max_chaos,
+    )
 
 
 if __name__ == "__main__":
@@ -207,7 +215,7 @@ if __name__ == "__main__":
     results = []
     
     # Test all states
-    results.append(("Restorative", test_window(
+    results.append(("Restorative", run_window(
         "Restorative Demo",
         create_restorative_demo(),
         expected_state="restorative",
@@ -215,7 +223,7 @@ if __name__ == "__main__":
         max_chaos=0.15
     )))
     
-    results.append(("Focus", test_window(
+    results.append(("Focus", run_window(
         "Focus Demo",
         create_focus_demo(),
         expected_state="focus",
@@ -224,13 +232,13 @@ if __name__ == "__main__":
         max_chaos=0.20
     )))
     
-    results.append(("Balanced", test_window(
+    results.append(("Balanced", run_window(
         "Balanced Demo",
         create_balanced_demo(),
         expected_state="balanced"
     )))
     
-    results.append(("Emergency/Overload", test_window(
+    results.append(("Emergency/Overload", run_window(
         "Emergency Demo",
         create_emergency_demo(),
         expected_state=None,  # Can be overload or emergency
